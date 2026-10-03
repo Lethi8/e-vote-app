@@ -1,0 +1,6 @@
+<resources>
+    <style name="Theme.Vota" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">#86EFAC</item>
+        <item name="android:statusBarColor">#0F172A</item>
+    </style>
+</resources>

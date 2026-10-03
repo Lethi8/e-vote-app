@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vota_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            style="@style/VotaLogo"
+            android:text="VOTA" />
+
+        <TextView
+            style="@style/VotaHero"
+            android:layout_marginTop="40dp"
+            android:text="Voter account" />
+
+        <TextView
+            style="@style/VotaBody"
+            android:text="Sign in securely to access your voting hub." />
+
+        <EditText
+            android:id="@+id/edtEmail"
+            style="@style/VotaInput"
+            android:layout_marginTop="24dp"
+            android:hint="Email address"
+            android:inputType="textEmailAddress" />
+
+        <EditText
+            android:id="@+id/edtPassword"
+            style="@style/VotaInput"
+            android:hint="Password"
+            android:inputType="textPassword" />
+
+        <Button
+            android:id="@+id/btnSignIn"
+            style="@style/VotaPrimaryButton"
+            android:text="Sign in" />
+
+        <Button
+            android:id="@+id/btnDemoVoter"
+            style="@style/VotaSecondaryButton"
+            android:text="Continue as demo voter" />
+
+        <Button
+            android:id="@+id/btnRegister"
+            style="@style/VotaTextButton"
+            android:text="Create voter account" />
+
+        <TextView
+            style="@style/VotaCaption"
+            android:layout_marginTop="18dp"
+            android:text="Demo mode uses local sample data. Connect Supabase before production use." />
+
+    </LinearLayout>
+</ScrollView>

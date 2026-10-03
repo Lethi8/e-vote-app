@@ -1,0 +1,11 @@
+<resources>
+    <style name="Theme.Vota" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/vota_green</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/vota_mint</item>
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/vota_bg</item>
+        <item name="android:navigationBarColor">@color/white</item>
+    </style>
+</resources>

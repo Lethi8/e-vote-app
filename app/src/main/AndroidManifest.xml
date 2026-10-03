@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@drawable/ic_vota"
+        android:label="Vota"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Vota"
+        android:usesCleartextTraffic="false">
+
+        <activity android:name=".ui.ProfileActivity" />
+        <activity android:name=".ui.OfficerActivity" />
+        <activity android:name=".ui.AdminActivity" />
+        <activity android:name=".ui.NotificationsActivity" />
+        <activity android:name=".ui.BadgesActivity" />
+        <activity android:name=".ui.SecurityActivity" />
+        <activity android:name=".ui.LearnActivity" />
+        <activity android:name=".ui.ResultsActivity" />
+        <activity android:name=".ui.ReceiptActivity" />
+        <activity android:name=".ui.VoteActivity" />
+        <activity android:name=".ui.PartyExplorerActivity" />
+        <activity android:name=".ui.ElectionDetailsActivity" />
+        <activity android:name=".ui.ElectionsActivity" />
+        <activity android:name=".ui.VerificationActivity" />
+        <activity android:name=".ui.HomeActivity" />
+        <activity android:name=".ui.RegisterActivity" />
+        <activity android:name=".ui.LoginActivity" />
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+</manifest>

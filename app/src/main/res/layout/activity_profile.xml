@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vota_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView style="@style/VotaEyebrow" android:text="ACCOUNT" />
+        <TextView style="@style/VotaHero" android:layout_marginTop="8dp" android:text="Profile and security" />
+
+        <LinearLayout style="@style/VotaCard" android:layout_marginTop="18dp" android:orientation="vertical">
+            <TextView style="@style/VotaTitle" android:text="Account" />
+            <TextView android:id="@+id/txtName" style="@style/VotaBody" android:layout_marginTop="10dp" />
+            <TextView android:id="@+id/txtEmail" style="@style/VotaBody" android:layout_marginTop="4dp" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:gravity="center_vertical" android:layout_marginTop="4dp">
+                <TextView android:id="@+id/txtPhone" style="@style/VotaBody" android:layout_width="0dp" android:layout_weight="1" />
+                <Button android:id="@+id/btnEditPhone" style="@style/VotaSmallButton" android:text="Edit" />
+            </LinearLayout>
+            <TextView android:id="@+id/txtIdMasked" style="@style/VotaBody" android:layout_marginTop="4dp" />
+            <TextView android:id="@+id/txtVerified" style="@style/VotaBody" android:layout_marginTop="4dp" />
+            <TextView android:id="@+id/txtRole" style="@style/VotaBody" android:layout_marginTop="4dp" />
+            <TextView android:id="@+id/txtMemberSince" style="@style/VotaCaption" android:layout_marginTop="8dp" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/VotaCard" android:layout_marginTop="16dp" android:orientation="vertical">
+            <TextView style="@style/VotaTitle" android:text="Security" />
+            <Button android:id="@+id/btnChangePassword" style="@style/VotaSecondaryButton" android:text="Change password" />
+            <Button android:id="@+id/btnSignOut" style="@style/VotaSecondaryButton" android:text="Sign out" />
+            <Button android:id="@+id/btnSignOutEverywhere" style="@style/VotaSecondaryButton" android:text="Sign out of all devices" />
+            <Button android:id="@+id/btnSecurityInfo" style="@style/VotaTextButton" android:text="How Vota protects ballots" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/VotaCard" android:layout_marginTop="16dp" android:orientation="vertical">
+            <TextView style="@style/VotaTitle" android:text="Your civic activity" />
+            <Button android:id="@+id/btnBadges" style="@style/VotaSecondaryButton" android:text="View your badges" />
+            <TextView style="@style/VotaCaption" android:layout_marginTop="10dp" android:text="Elections you've participated in:" />
+            <LinearLayout android:id="@+id/participationContainer"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:layout_marginTop="6dp" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/VotaCard" android:layout_marginTop="16dp" android:orientation="vertical">
+            <TextView style="@style/VotaTitle" android:text="Privacy and your data" />
+            <TextView style="@style/VotaBody" android:layout_marginTop="8dp"
+                android:text="Vota stores your name, contact details, ID number, verification status, and a record of which elections you've participated in. Your ballot choices are never linked to your identity." />
+            <Button android:id="@+id/btnDeleteAccount" style="@style/VotaSecondaryButton"
+                android:textColor="@color/danger" android:text="Delete my account" />
+        </LinearLayout>
+
+        <Button android:id="@+id/btnAdmin" style="@style/VotaSecondaryButton" android:layout_marginTop="16dp" android:visibility="gone" android:text="Open admin dashboard" />
+        <Button android:id="@+id/btnOfficer" style="@style/VotaSecondaryButton" android:visibility="gone" android:text="Open officer console" />
+
+    </LinearLayout>
+</ScrollView>

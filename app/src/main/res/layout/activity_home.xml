@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vota_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <TextView
+                style="@style/VotaLogo"
+                android:text="VOTA" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/btnLogout"
+                style="@style/VotaSmallButton"
+                android:text="Sign out" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/VotaEyebrow"
+            android:layout_marginTop="32dp"
+            android:text="WELCOME BACK" />
+
+        <TextView
+            android:id="@+id/txtWelcome"
+            style="@style/VotaHero"
+            android:text="Your voting hub" />
+
+        <LinearLayout
+            style="@style/VotaCard"
+            android:layout_marginTop="18dp"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/VotaTitle"
+                android:text="Readiness checklist" />
+
+            <TextView
+                android:id="@+id/txtVerified"
+                style="@style/VotaBody"
+                android:layout_marginTop="10dp"
+                android:text="○ Identity verification pending\n✓ Voter account created\n○ Ballot not yet cast" />
+
+            <Button
+                android:id="@+id/btnVerify"
+                style="@style/VotaSecondaryButton"
+                android:text="Verify identity" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/VotaTitle"
+            android:layout_marginTop="28dp"
+            android:text="Quick access" />
+
+        <Button
+            android:id="@+id/btnElections"
+            style="@style/VotaPrimaryButton"
+            android:text="Elections and ballots" />
+
+        <Button
+            android:id="@+id/btnParties"
+            style="@style/VotaSecondaryButton"
+            android:text="Party explorer" />
+
+        <Button
+            android:id="@+id/btnLearn"
+            style="@style/VotaSecondaryButton"
+            android:text="Voter education" />
+
+        <Button
+            android:id="@+id/btnResults"
+            style="@style/VotaSecondaryButton"
+            android:text="Live results" />
+
+        <Button
+            android:id="@+id/btnNotifications"
+            style="@style/VotaSecondaryButton"
+            android:text="Notifications" />
+
+        <Button
+            android:id="@+id/btnBadges"
+            style="@style/VotaSecondaryButton"
+            android:text="My badges" />
+
+        <Button
+            android:id="@+id/btnProfile"
+            style="@style/VotaSecondaryButton"
+            android:text="Profile and security" />
+
+    </LinearLayout>
+</ScrollView>

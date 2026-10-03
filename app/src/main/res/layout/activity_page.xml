@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vota_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="22dp">
+
+        <TextView
+            android:id="@+id/txtEyebrow"
+            style="@style/VotaEyebrow" />
+
+        <TextView
+            android:id="@+id/txtTitle"
+            style="@style/VotaHero"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/txtBody"
+            style="@style/VotaBody"
+            android:layout_marginTop="14dp" />
+
+        <LinearLayout
+            android:id="@+id/contentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <Button
+            android:id="@+id/btnPrimary"
+            style="@style/VotaPrimaryButton"
+            android:layout_marginTop="20dp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btnSecondary"
+            style="@style/VotaSecondaryButton"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</ScrollView>

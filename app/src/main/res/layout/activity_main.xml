@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vota_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            style="@style/VotaLogo"
+            android:text="VOTA" />
+
+        <TextView
+            style="@style/VotaEyebrow"
+            android:layout_marginTop="48dp"
+            android:text="BUILT FOR VOTERS AGED 18–35" />
+
+        <TextView
+            style="@style/VotaHero"
+            android:layout_marginTop="16dp"
+            android:text="@string/tagline" />
+
+        <TextView
+            style="@style/VotaBody"
+            android:layout_marginTop="16dp"
+            android:text="A secure youth e-voting platform where voters verify their identity, explore candidates and cast a ballot securely." />
+
+        <Button
+            android:id="@+id/btnElections"
+            style="@style/VotaPrimaryButton"
+            android:layout_marginTop="28dp"
+            android:text="See open elections" />
+
+        <Button
+            android:id="@+id/btnLearn"
+            style="@style/VotaSecondaryButton"
+            android:text="Voter education" />
+
+        <Button
+            android:id="@+id/btnLogin"
+            style="@style/VotaTextButton"
+            android:text="Sign in or register" />
+
+        <LinearLayout
+            style="@style/VotaCard"
+            android:layout_marginTop="28dp"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/VotaTitle"
+                android:text="Why voters would trust it" />
+
+            <TextView
+                style="@style/VotaBody"
+                android:layout_marginTop="12dp"
+                android:text=" Identity is separated from ballot choice\n\n One verified voter, one ballot per election\n\n Verifiable receipt without revealing your choice\n\n POPIA-aligned data handling" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

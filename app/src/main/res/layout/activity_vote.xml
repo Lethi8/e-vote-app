@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vota_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="22dp">
+
+        <TextView
+            style="@style/VotaEyebrow"
+            android:text="SECURE BALLOT" />
+
+        <TextView
+            android:id="@+id/txtElection"
+            style="@style/VotaHero"
+            android:text="Your ballot" />
+
+        <TextView
+            style="@style/VotaBody"
+            android:text="Select one party. You can review your selection before the final confirmation." />
+
+        <RadioGroup
+            android:id="@+id/radioParties"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp" />
+
+        <CheckBox
+            android:id="@+id/chkConfirm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/vota_text"
+            android:text="I reviewed my selection and understand that a submitted ballot cannot be changed." />
+
+        <Button
+            android:id="@+id/btnCast"
+            style="@style/VotaPrimaryButton"
+            android:text="Review and cast ballot" />
+
+    </LinearLayout>
+</ScrollView>

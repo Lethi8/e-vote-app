@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vota_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            style="@style/VotaHero"
+            android:text="Create voter account" />
+
+        <TextView
+            style="@style/VotaBody"
+            android:text="Your identity details verify eligibility. They must never be attached to your ballot choice." />
+
+        <EditText
+            android:id="@+id/edtName"
+            style="@style/VotaInput"
+            android:layout_marginTop="18dp"
+            android:hint="Full name" />
+
+        <EditText
+            android:id="@+id/edtEmail"
+            style="@style/VotaInput"
+            android:hint="Email address"
+            android:inputType="textEmailAddress" />
+
+        <EditText
+            android:id="@+id/edtPhone"
+            style="@style/VotaInput"
+            android:hint="Phone number"
+            android:inputType="phone" />
+
+        <EditText
+            android:id="@+id/edtId"
+            style="@style/VotaInput"
+            android:hint="South African ID number"
+            android:inputType="number"
+            android:maxLength="13" />
+
+        <EditText
+            android:id="@+id/edtPassword"
+            style="@style/VotaInput"
+            android:hint="Password (at least 8 characters)"
+            android:inputType="textPassword" />
+
+        <EditText
+            android:id="@+id/edtConfirm"
+            style="@style/VotaInput"
+            android:hint="Confirm password"
+            android:inputType="textPassword" />
+
+        <CheckBox
+            android:id="@+id/chkConsent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/vota_text"
+            android:text="I consent to processing required identity data for voter verification." />
+
+        <Button
+            android:id="@+id/btnCreate"
+            style="@style/VotaPrimaryButton"
+            android:text="Create account" />
+
+    </LinearLayout>
+</ScrollView>
