@@ -42,12 +42,19 @@ public class AdminPartiesActivity extends BaseActivity {
         session = new SessionManager(this);
 
         if (!"admin".equalsIgnoreCase(session.role())) {
-            Toast.makeText(this, "Admin access required", Toast.LENGTH_SHORT).show();
+            Toast.makeText(
+                    this,
+                    "Admin access required",
+                    Toast.LENGTH_SHORT
+            ).show();
+
             finish();
             return;
         }
 
-        api = ApiClient.get(session).create(RestApi.class);
+        api = ApiClient
+                .get(session)
+                .create(RestApi.class);
 
         page(
                 "ADMIN • PARTIES",
@@ -55,11 +62,22 @@ public class AdminPartiesActivity extends BaseActivity {
                 "Add, edit and delete political parties linked to elections."
         );
 
-        primary("Add party").setOnClickListener(v -> showAddPartyDialog());
-        secondary("Refresh").setOnClickListener(v -> loadData());
+        // Make long admin content scrollable with a visible scrollbar.
+        enablePageScrollbar();
+
+        // Existing main actions.
+        primary("Add party")
+                .setOnClickListener(v -> showAddPartyDialog());
+
+        secondary("Refresh")
+                .setOnClickListener(v -> loadData());
 
         loadData();
     }
+
+    // =========================================================
+    // LOAD DATA
+    // =========================================================
 
     private void loadData() {
         showLoading();
@@ -71,7 +89,10 @@ public class AdminPartiesActivity extends BaseActivity {
                     Response<List<Election>> response
             ) {
                 if (!response.isSuccessful() || response.body() == null) {
-                    showError("Could not load elections.\n" + getErrorMessage(response));
+                    showError(
+                            "Could not load elections.\n"
+                                    + getErrorMessage(response)
+                    );
                     return;
                 }
 
@@ -79,16 +100,26 @@ public class AdminPartiesActivity extends BaseActivity {
                 elections.addAll(response.body());
 
                 electionNames.clear();
+
                 for (Election election : elections) {
-                    electionNames.put(election.id, election.title);
+                    electionNames.put(
+                            election.id,
+                            election.title
+                    );
                 }
 
                 loadParties();
             }
 
             @Override
-            public void onFailure(Call<List<Election>> call, Throwable t) {
-                showError("Could not connect to Supabase.\n" + t.getMessage());
+            public void onFailure(
+                    Call<List<Election>> call,
+                    Throwable t
+            ) {
+                showError(
+                        "Could not connect to Supabase.\n"
+                                + t.getMessage()
+                );
             }
         });
     }
@@ -101,31 +132,51 @@ public class AdminPartiesActivity extends BaseActivity {
                     Response<List<Party>> response
             ) {
                 if (!response.isSuccessful() || response.body() == null) {
-                    showError("Could not load parties.\n" + getErrorMessage(response));
+                    showError(
+                            "Could not load parties.\n"
+                                    + getErrorMessage(response)
+                    );
                     return;
                 }
 
                 parties.clear();
                 parties.addAll(response.body());
+
                 displayParties();
             }
 
             @Override
-            public void onFailure(Call<List<Party>> call, Throwable t) {
-                showError("Could not connect to Supabase.\n" + t.getMessage());
+            public void onFailure(
+                    Call<List<Party>> call,
+                    Throwable t
+            ) {
+                showError(
+                        "Could not connect to Supabase.\n"
+                                + t.getMessage()
+                );
             }
         });
     }
+
+    // =========================================================
+    // DISPLAY PARTIES
+    // =========================================================
 
     private void displayParties() {
         clearPartyCards();
 
         if (parties.isEmpty()) {
-            addSection("No political parties", "No parties have been added yet.");
+            addSection(
+                    "No political parties",
+                    "No parties have been added yet."
+            );
+
+            addBackSection();
             return;
         }
 
         for (Party party : parties) {
+
             String electionName =
                     electionNames.containsKey(party.electionId)
                             ? electionNames.get(party.electionId)
@@ -151,24 +202,45 @@ public class AdminPartiesActivity extends BaseActivity {
                     v -> showPartyOptions(party)
             );
         }
+
+        // Always keep a Back option at the bottom of the admin page.
+        addBackSection();
     }
 
     private void showLoading() {
         clearPartyCards();
-        addSection("Loading", "Fetching political parties from Supabase...");
+
+        addSection(
+                "Loading",
+                "Fetching political parties from Supabase..."
+        );
+
+        addBackSection();
     }
 
     private void showError(String message) {
         clearPartyCards();
-        addSection("Unable to load parties", message);
+
+        addSection(
+                "Unable to load parties",
+                message
+        );
+
+        addBackSection();
     }
 
     private void clearPartyCards() {
-        LinearLayout container = findViewById(R.id.contentContainer);
+        LinearLayout container =
+                findViewById(R.id.contentContainer);
+
         if (container != null) {
             container.removeAllViews();
         }
     }
+
+    // =========================================================
+    // MANAGE PARTY
+    // =========================================================
 
     private void showPartyOptions(Party party) {
         String[] options = {
@@ -181,10 +253,13 @@ public class AdminPartiesActivity extends BaseActivity {
         new AlertDialog.Builder(this)
                 .setTitle(party.name)
                 .setItems(options, (dialog, which) -> {
+
                     if (which == 0) {
                         showPartyDetails(party);
+
                     } else if (which == 1) {
                         showEditPartyDialog(party);
+
                     } else if (which == 2) {
                         confirmDeleteParty(party);
                     }
@@ -220,13 +295,19 @@ public class AdminPartiesActivity extends BaseActivity {
                 .show();
     }
 
+    // =========================================================
+    // ADD PARTY
+    // =========================================================
+
     private void showAddPartyDialog() {
+
         if (elections.isEmpty()) {
             Toast.makeText(
                     this,
                     "Create an election before adding a party.",
                     Toast.LENGTH_LONG
             ).show();
+
             return;
         }
 
@@ -242,55 +323,89 @@ public class AdminPartiesActivity extends BaseActivity {
         dialog.setOnShowListener(d ->
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                         .setOnClickListener(v -> {
+
                             if (!validateForm(form)) {
                                 return;
                             }
 
-                            Party newParty = partyFromForm(form);
-                            createParty(newParty, dialog);
+                            Party newParty =
+                                    partyFromForm(form);
+
+                            createParty(
+                                    newParty,
+                                    dialog
+                            );
                         })
         );
 
         dialog.show();
     }
 
-    private void createParty(Party party, AlertDialog dialog) {
+    private void createParty(
+            Party party,
+            AlertDialog dialog
+    ) {
+
         api.createParty(
                 "return=minimal",
                 party
         ).enqueue(new Callback<Void>() {
+
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(
+                    Call<Void> call,
+                    Response<Void> response
+            ) {
+
                 if (response.isSuccessful()) {
+
                     dialog.dismiss();
+
                     Toast.makeText(
                             AdminPartiesActivity.this,
                             "Party added successfully",
                             Toast.LENGTH_SHORT
                     ).show();
+
                     loadData();
+
                 } else {
+
                     Toast.makeText(
                             AdminPartiesActivity.this,
-                            "Add failed: " + getErrorMessage(response),
+                            "Add failed: "
+                                    + getErrorMessage(response),
                             Toast.LENGTH_LONG
                     ).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(
+                    Call<Void> call,
+                    Throwable t
+            ) {
+
                 Toast.makeText(
                         AdminPartiesActivity.this,
-                        "Network error: " + t.getMessage(),
+                        "Network error: "
+                                + t.getMessage(),
                         Toast.LENGTH_LONG
                 ).show();
             }
         });
     }
 
-    private void showEditPartyDialog(Party existingParty) {
-        PartyForm form = createPartyForm(existingParty);
+    // =========================================================
+    // EDIT PARTY
+    // =========================================================
+
+    private void showEditPartyDialog(
+            Party existingParty
+    ) {
+
+        PartyForm form =
+                createPartyForm(existingParty);
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Edit political party")
@@ -302,12 +417,19 @@ public class AdminPartiesActivity extends BaseActivity {
         dialog.setOnShowListener(d ->
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                         .setOnClickListener(v -> {
+
                             if (!validateForm(form)) {
                                 return;
                             }
 
-                            Party updatedParty = partyFromForm(form);
-                            updateParty(existingParty.id, updatedParty, dialog);
+                            Party updatedParty =
+                                    partyFromForm(form);
+
+                            updateParty(
+                                    existingParty.id,
+                                    updatedParty,
+                                    dialog
+                            );
                         })
         );
 
@@ -319,91 +441,159 @@ public class AdminPartiesActivity extends BaseActivity {
             Party party,
             AlertDialog dialog
     ) {
+
         api.updateParty(
                 "eq." + partyId,
                 "return=minimal",
                 party
         ).enqueue(new Callback<Void>() {
+
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(
+                    Call<Void> call,
+                    Response<Void> response
+            ) {
+
                 if (response.isSuccessful()) {
+
                     dialog.dismiss();
+
                     Toast.makeText(
                             AdminPartiesActivity.this,
                             "Party updated successfully",
                             Toast.LENGTH_SHORT
                     ).show();
+
                     loadData();
+
                 } else {
+
                     Toast.makeText(
                             AdminPartiesActivity.this,
-                            "Update failed: " + getErrorMessage(response),
+                            "Update failed: "
+                                    + getErrorMessage(response),
                             Toast.LENGTH_LONG
                     ).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(
+                    Call<Void> call,
+                    Throwable t
+            ) {
+
                 Toast.makeText(
                         AdminPartiesActivity.this,
-                        "Network error: " + t.getMessage(),
+                        "Network error: "
+                                + t.getMessage(),
                         Toast.LENGTH_LONG
                 ).show();
             }
         });
     }
 
-    private void confirmDeleteParty(Party party) {
+    // =========================================================
+    // DELETE PARTY
+    // =========================================================
+
+    private void confirmDeleteParty(
+            Party party
+    ) {
+
         new AlertDialog.Builder(this)
                 .setTitle("Delete party?")
-                .setMessage("Are you sure you want to delete " + party.name + "?")
-                .setPositiveButton("Delete", (dialog, which) -> deleteParty(party))
-                .setNegativeButton("Cancel", null)
+                .setMessage(
+                        "Are you sure you want to delete "
+                                + party.name
+                                + "?"
+                )
+                .setPositiveButton(
+                        "Delete",
+                        (dialog, which) ->
+                                deleteParty(party)
+                )
+                .setNegativeButton(
+                        "Cancel",
+                        null
+                )
                 .show();
     }
 
-    private void deleteParty(Party party) {
+    private void deleteParty(
+            Party party
+    ) {
+
         api.deleteParty(
                 "eq." + party.id
         ).enqueue(new Callback<Void>() {
+
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(
+                    Call<Void> call,
+                    Response<Void> response
+            ) {
+
                 if (response.isSuccessful()) {
+
                     Toast.makeText(
                             AdminPartiesActivity.this,
                             "Party deleted",
                             Toast.LENGTH_SHORT
                     ).show();
+
                     loadData();
+
                 } else {
+
                     Toast.makeText(
                             AdminPartiesActivity.this,
-                            "Delete failed: " + getErrorMessage(response),
+                            "Delete failed: "
+                                    + getErrorMessage(response),
                             Toast.LENGTH_LONG
                     ).show();
                 }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(
+                    Call<Void> call,
+                    Throwable t
+            ) {
+
                 Toast.makeText(
                         AdminPartiesActivity.this,
-                        "Network error: " + t.getMessage(),
+                        "Network error: "
+                                + t.getMessage(),
                         Toast.LENGTH_LONG
                 ).show();
             }
         });
     }
 
-    private PartyForm createPartyForm(Party party) {
-        PartyForm form = new PartyForm();
+    // =========================================================
+    // PARTY FORM
+    // =========================================================
 
-        LinearLayout container = new LinearLayout(this);
-        container.setOrientation(LinearLayout.VERTICAL);
+    private PartyForm createPartyForm(
+            Party party
+    ) {
+
+        PartyForm form =
+                new PartyForm();
+
+        LinearLayout container =
+                new LinearLayout(this);
+
+        container.setOrientation(
+                LinearLayout.VERTICAL
+        );
 
         int padding =
-                (int) (20 * getResources().getDisplayMetrics().density);
+                (int) (20
+                        * getResources()
+                        .getDisplayMetrics()
+                        .density);
 
         container.setPadding(
                 padding,
@@ -414,11 +604,16 @@ public class AdminPartiesActivity extends BaseActivity {
 
         form.container = container;
 
-        form.electionSpinner = new Spinner(this);
+        form.electionSpinner =
+                new Spinner(this);
 
-        List<String> electionTitles = new ArrayList<>();
+        List<String> electionTitles =
+                new ArrayList<>();
+
         for (Election election : elections) {
-            electionTitles.add(election.title);
+            electionTitles.add(
+                    election.title
+            );
         }
 
         ArrayAdapter<String> adapter =
@@ -429,41 +624,111 @@ public class AdminPartiesActivity extends BaseActivity {
                 );
 
         adapter.setDropDownViewResource(
-                android.R.layout.simple_spinner_dropdown_item
+                android.R.layout
+                        .simple_spinner_dropdown_item
         );
 
-        form.electionSpinner.setAdapter(adapter);
-        container.addView(form.electionSpinner);
+        form.electionSpinner
+                .setAdapter(adapter);
 
-        form.name = createField("Party name");
-        container.addView(form.name);
+        container.addView(
+                form.electionSpinner
+        );
 
-        form.abbreviation = createField("Abbreviation e.g. ANC");
-        container.addView(form.abbreviation);
+        form.name =
+                createField(
+                        "Party name"
+                );
 
-        form.description = createField("Description");
-        container.addView(form.description);
+        container.addView(
+                form.name
+        );
 
-        form.color = createField("Colour e.g. #FF0000");
-        container.addView(form.color);
+        form.abbreviation =
+                createField(
+                        "Abbreviation e.g. ANC"
+                );
 
-        form.policySummary = createLargeField("Policy summary");
-        container.addView(form.policySummary);
+        container.addView(
+                form.abbreviation
+        );
 
-        form.keyPositions = createLargeField("Key positions");
-        container.addView(form.keyPositions);
+        form.description =
+                createField(
+                        "Description"
+                );
+
+        container.addView(
+                form.description
+        );
+
+        form.color =
+                createField(
+                        "Colour e.g. #FF0000"
+                );
+
+        container.addView(
+                form.color
+        );
+
+        form.policySummary =
+                createLargeField(
+                        "Policy summary"
+                );
+
+        container.addView(
+                form.policySummary
+        );
+
+        form.keyPositions =
+                createLargeField(
+                        "Key positions"
+                );
+
+        container.addView(
+                form.keyPositions
+        );
 
         if (party != null) {
-            form.name.setText(safe(party.name));
-            form.abbreviation.setText(safe(party.abbreviation));
-            form.description.setText(safe(party.description));
-            form.color.setText(safe(party.color));
-            form.policySummary.setText(safe(party.policySummary));
-            form.keyPositions.setText(safe(party.keyPositions));
 
-            for (int i = 0; i < elections.size(); i++) {
-                if (elections.get(i).id.equals(party.electionId)) {
-                    form.electionSpinner.setSelection(i);
+            form.name.setText(
+                    safe(party.name)
+            );
+
+            form.abbreviation.setText(
+                    safe(party.abbreviation)
+            );
+
+            form.description.setText(
+                    safe(party.description)
+            );
+
+            form.color.setText(
+                    safe(party.color)
+            );
+
+            form.policySummary.setText(
+                    safe(party.policySummary)
+            );
+
+            form.keyPositions.setText(
+                    safe(party.keyPositions)
+            );
+
+            for (int i = 0;
+                 i < elections.size();
+                 i++) {
+
+                if (elections
+                        .get(i)
+                        .id
+                        .equals(
+                                party.electionId
+                        )) {
+
+                    form.electionSpinner
+                            .setSelection(i);
+
                     break;
                 }
             }
@@ -472,43 +737,79 @@ public class AdminPartiesActivity extends BaseActivity {
         return form;
     }
 
-    private EditText createField(String hint) {
-        EditText field = new EditText(this);
+    private EditText createField(
+            String hint
+    ) {
+
+        EditText field =
+                new EditText(this);
+
         field.setHint(hint);
+
         field.setSingleLine(true);
+
         return field;
     }
 
-    private EditText createLargeField(String hint) {
-        EditText field = new EditText(this);
+    private EditText createLargeField(
+            String hint
+    ) {
+
+        EditText field =
+                new EditText(this);
+
         field.setHint(hint);
+
         field.setMinLines(3);
+
         field.setInputType(
                 InputType.TYPE_CLASS_TEXT
-                        | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                        | InputType
+                        .TYPE_TEXT_FLAG_MULTI_LINE
         );
+
         return field;
     }
 
-    private boolean validateForm(PartyForm form) {
+    private boolean validateForm(
+            PartyForm form
+    ) {
+
         String name =
-                form.name.getText().toString().trim();
+                form.name
+                        .getText()
+                        .toString()
+                        .trim();
 
         String abbreviation =
-                form.abbreviation.getText().toString().trim();
+                form.abbreviation
+                        .getText()
+                        .toString()
+                        .trim();
 
         String color =
-                form.color.getText().toString().trim();
+                form.color
+                        .getText()
+                        .toString()
+                        .trim();
 
         if (name.isEmpty()) {
-            form.name.setError("Party name is required");
+            form.name.setError(
+                    "Party name is required"
+            );
+
             form.name.requestFocus();
+
             return false;
         }
 
         if (abbreviation.isEmpty()) {
-            form.abbreviation.setError("Abbreviation is required");
+            form.abbreviation.setError(
+                    "Abbreviation is required"
+            );
+
             form.abbreviation.requestFocus();
+
             return false;
         }
 
@@ -516,77 +817,145 @@ public class AdminPartiesActivity extends BaseActivity {
             form.abbreviation.setError(
                     "Abbreviation must be 10 characters or less"
             );
+
             form.abbreviation.requestFocus();
+
             return false;
         }
 
         if (!color.isEmpty()
                 && !color.matches("^#[0-9A-Fa-f]{6}$")) {
 
-            form.color.setError("Use a colour like #FF0000");
+            form.color.setError(
+                    "Use a colour like #FF0000"
+            );
+
             form.color.requestFocus();
+
             return false;
         }
 
         if (elections.isEmpty()) {
+
             Toast.makeText(
                     this,
                     "No election available",
                     Toast.LENGTH_SHORT
             ).show();
+
             return false;
         }
 
-        if (form.electionSpinner.getSelectedItemPosition() < 0) {
+        if (form.electionSpinner
+                .getSelectedItemPosition() < 0) {
+
             Toast.makeText(
                     this,
                     "Please select an election",
                     Toast.LENGTH_SHORT
             ).show();
+
             return false;
         }
 
         return true;
     }
 
-    private Party partyFromForm(PartyForm form) {
-        Party party = new Party();
+    private Party partyFromForm(
+            PartyForm form
+    ) {
+
+        Party party =
+                new Party();
 
         Election selectedElection =
                 elections.get(
-                        form.electionSpinner.getSelectedItemPosition()
+                        form.electionSpinner
+                                .getSelectedItemPosition()
                 );
 
-        party.electionId = selectedElection.id;
-        party.name = form.name.getText().toString().trim();
-        party.abbreviation = form.abbreviation.getText().toString().trim();
-        party.description = form.description.getText().toString().trim();
-        party.color = form.color.getText().toString().trim();
-        party.policySummary = form.policySummary.getText().toString().trim();
-        party.keyPositions = form.keyPositions.getText().toString().trim();
+        party.electionId =
+                selectedElection.id;
+
+        party.name =
+                form.name
+                        .getText()
+                        .toString()
+                        .trim();
+
+        party.abbreviation =
+                form.abbreviation
+                        .getText()
+                        .toString()
+                        .trim();
+
+        party.description =
+                form.description
+                        .getText()
+                        .toString()
+                        .trim();
+
+        party.color =
+                form.color
+                        .getText()
+                        .toString()
+                        .trim();
+
+        party.policySummary =
+                form.policySummary
+                        .getText()
+                        .toString()
+                        .trim();
+
+        party.keyPositions =
+                form.keyPositions
+                        .getText()
+                        .toString()
+                        .trim();
 
         return party;
     }
 
-    private String safe(String value) {
-        return value == null ? "" : value;
+    // =========================================================
+    // HELPERS
+    // =========================================================
+
+    private String safe(
+            String value
+    ) {
+        return value == null
+                ? ""
+                : value;
     }
 
-    private String getErrorMessage(Response<?> response) {
+    private String getErrorMessage(
+            Response<?> response
+    ) {
+
         if (response.errorBody() == null) {
-            return "HTTP " + response.code();
+            return "HTTP "
+                    + response.code();
         }
 
         try {
-            return response.errorBody().string();
+
+            return response
+                    .errorBody()
+                    .string();
+
         } catch (IOException e) {
-            return "HTTP " + response.code();
+
+            return "HTTP "
+                    + response.code();
         }
     }
 
     private static class PartyForm {
+
         LinearLayout container;
+
         Spinner electionSpinner;
+
         EditText name;
         EditText abbreviation;
         EditText description;

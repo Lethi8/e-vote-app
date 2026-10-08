@@ -1,8 +1,10 @@
 package com.example.vota.ui;
 
 import android.os.Bundle;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.example.vota.R;
 import com.example.vota.net.ApiClient;
 import com.example.vota.net.RestApi;
 import com.example.vota.util.SessionManager;
@@ -45,6 +47,10 @@ public class AuditLogsActivity extends BaseActivity {
                 "Review administrator actions recorded by the system."
         );
 
+        // Show a visible scrollbar when the audit list becomes long.
+        enablePageScrollbar();
+
+        // Main refresh button.
         primary("Refresh")
                 .setOnClickListener(v -> loadAuditLogs());
 
@@ -52,6 +58,14 @@ public class AuditLogsActivity extends BaseActivity {
     }
 
     private void loadAuditLogs() {
+        clearAuditSections();
+
+        addSection(
+                "Loading",
+                "Fetching audit logs from Supabase..."
+        );
+
+        addBackSection();
 
         api.auditLogs().enqueue(new Callback<List<RestApi.AuditLogRow>>() {
 
@@ -61,7 +75,16 @@ public class AuditLogsActivity extends BaseActivity {
                     Response<List<RestApi.AuditLogRow>> response
             ) {
 
+                clearAuditSections();
+
                 if (!response.isSuccessful() || response.body() == null) {
+
+                    addSection(
+                            "Unable to load audit logs",
+                            "Supabase returned HTTP " + response.code()
+                    );
+
+                    addBackSection();
 
                     Toast.makeText(
                             AuditLogsActivity.this,
@@ -83,6 +106,7 @@ public class AuditLogsActivity extends BaseActivity {
                             "No administrator actions have been recorded yet."
                     );
 
+                    addBackSection();
                     return;
                 }
 
@@ -90,6 +114,7 @@ public class AuditLogsActivity extends BaseActivity {
 
                     String user =
                             log.user_id == null
+                                    || log.user_id.trim().isEmpty()
                                     ? "System / SQL Editor"
                                     : log.user_id;
 
@@ -111,6 +136,8 @@ public class AuditLogsActivity extends BaseActivity {
                             body
                     );
                 }
+
+                addBackSection();
             }
 
             @Override
@@ -119,14 +146,36 @@ public class AuditLogsActivity extends BaseActivity {
                     Throwable t
             ) {
 
+                clearAuditSections();
+
+                String error =
+                        t.getMessage() == null
+                                ? "Unknown network error"
+                                : t.getMessage();
+
+                addSection(
+                        "Network error",
+                        error
+                );
+
+                addBackSection();
+
                 Toast.makeText(
                         AuditLogsActivity.this,
-                        "Network error: "
-                                + t.getMessage(),
+                        "Network error: " + error,
                         Toast.LENGTH_LONG
                 ).show();
             }
         });
+    }
+
+    private void clearAuditSections() {
+        LinearLayout container =
+                findViewById(R.id.contentContainer);
+
+        if (container != null) {
+            container.removeAllViews();
+        }
     }
 
     private String safe(String value) {
