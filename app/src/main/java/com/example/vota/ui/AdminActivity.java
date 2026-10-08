@@ -1,23 +1,80 @@
 package com.example.vota.ui;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.example.vota.util.SessionManager;
 
 public class AdminActivity extends BaseActivity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!"admin".equals(new SessionManager(this).role())) {
+
+        SessionManager sessionManager = new SessionManager(this);
+
+        // Only admins may use this screen
+        if (!"admin".equalsIgnoreCase(sessionManager.role())) {
+            Toast.makeText(
+                    this,
+                    "Admin access required",
+                    Toast.LENGTH_SHORT
+            ).show();
+
             finish();
             return;
         }
-        page("ROLE: ADMIN", "Admin dashboard",
-                "Administration must be enforced by backend roles and Row Level Security, not only by hiding buttons.");
-        addSection("Platform overview", "Registered voters • votes cast • elections • feedback totals");
-        addSection("User management",
-                "Review voter status and assign authorised staff roles through a protected server-side operation.");
-        addSection("Audit trail",
-                "Review privileged actions. Ordinary voters must never read the audit log.");
+
+        page(
+                "ROLE: ADMIN",
+                "Admin dashboard",
+                "Manage elections, political parties and audit logs."
+        );
+
+        // BUTTON 1
+        primary("Manage elections")
+                .setOnClickListener(v ->
+                        open(AdminElectionsActivity.class)
+                );
+
+        // BUTTON 2
+        secondary("Manage parties")
+                .setOnClickListener(v ->
+                        open(AdminPartiesActivity.class)
+                );
+
+        // AUDIT LOGS
+        addActionSection(
+                "Audit logs",
+                "Review administrator activity recorded by the system.",
+                "View audit logs",
+                v -> open(AuditLogsActivity.class)
+        );
+
+        // REFRESH
+        addActionSection(
+                "Refresh dashboard",
+                "Reload the admin dashboard.",
+                "Refresh",
+                v -> refreshDashboard()
+        );
+
+        // GO BACK
+        addActionSection(
+                "Return",
+                "Go back to the previous screen.",
+                "Go back",
+                v -> finish()
+        );
+    }
+
+    private void refreshDashboard() {
+        Toast.makeText(
+                this,
+                "Refreshing...",
+                Toast.LENGTH_SHORT
+        ).show();
+
+        recreate();
     }
 }
