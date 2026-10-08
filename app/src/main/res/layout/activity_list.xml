@@ -15,6 +15,35 @@
         android:id="@+id/txtSubtitle"
         style="@style/VotaBody" />
 
+    <!-- Only shown by PartyExplorerActivity -->
+    <EditText
+        android:id="@+id/edtSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Search parties"
+        android:inputType="text"
+        android:singleLine="true"
+        android:visibility="gone" />
+
+    <!-- Only shown by PartyExplorerActivity -->
+    <Spinner
+        android:id="@+id/spnSort"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/txtEmpty"
+        style="@style/VotaBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="No parties found."
+        android:visibility="gone" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"
         android:layout_width="match_parent"
