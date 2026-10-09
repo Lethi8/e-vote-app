@@ -1,3 +1,4 @@
+
 package com.example.vota.ui;
 
 import android.os.Bundle;
@@ -19,10 +20,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class RegisterActivity extends BaseActivity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
         findViewById(R.id.btnCreate).setOnClickListener(v -> create());
     }
 
@@ -35,41 +38,103 @@ public class RegisterActivity extends BaseActivity {
         EditText confirm = findViewById(R.id.edtConfirm);
         CheckBox consent = findViewById(R.id.chkConsent);
 
-        if (name.getText().toString().trim().length() < 3) { name.setError("Enter your full name"); return; }
-        if (!Patterns.EMAIL_ADDRESS.matcher(email.getText().toString().trim()).matches()) { email.setError("Enter a valid email"); return; }
-        if (id.getText().toString().length() != 13) { id.setError("A South African ID number has 13 digits"); return; }
-        if (password.getText().toString().length() < 8) { password.setError("Use at least 8 characters"); return; }
-        if (!password.getText().toString().equals(confirm.getText().toString())) { confirm.setError("Passwords do not match"); return; }
-        if (!consent.isChecked()) { consent.setError("Consent is required for verification"); return; }
+        String fullName = name.getText().toString().trim();
+        String emailAddress = email.getText().toString().trim();
+        String phoneNumber = phone.getText().toString().trim();
+        String idNumber = id.getText().toString().trim();
+        String passwordValue = password.getText().toString();
 
-        Map<String, String> meta = new HashMap<>();
-        meta.put("full_name", name.getText().toString().trim());
-        meta.put("phone", phone.getText().toString().trim());
-        meta.put("sa_id_number", id.getText().toString().trim());
+        if (fullName.length() < 3) {
+            name.setError("Enter your full name");
+            return;
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(emailAddress).matches()) {
+            email.setError("Enter a valid email");
+            return;
+        }
+
+        if (!idNumber.matches("\\d{13}")) {
+            id.setError("Enter a 13-digit South African ID number");
+            return;
+        }
+
+        if (passwordValue.length() < 8) {
+            password.setError("Use at least 8 characters");
+            return;
+        }
+
+        if (!passwordValue.equals(confirm.getText().toString())) {
+            confirm.setError("Passwords do not match");
+            return;
+        }
+
+        if (!consent.isChecked()) {
+            consent.setError("Consent is required for verification");
+            return;
+        }
+
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("full_name", fullName);
+        metadata.put("phone", phoneNumber);
+        metadata.put("sa_id_number", idNumber);
 
         SessionManager session = new SessionManager(this);
         AuthApi api = ApiClient.get(session).create(AuthApi.class);
-        api.signUp(new AuthApi.SignUpRequest(email.getText().toString().trim(), password.getText().toString(), meta))
-                .enqueue(new Callback<AuthApi.AuthResponse>() {
-                    @Override
-                    public void onResponse(Call<AuthApi.AuthResponse> call, Response<AuthApi.AuthResponse> resp) {
-                        AuthApi.AuthResponse body = resp.body();
-                        if (!resp.isSuccessful() || body == null || body.accessToken == null) {
-                            String msg = body != null && body.message != null ? body.message : "Registration failed";
-                            Toast.makeText(RegisterActivity.this, msg, Toast.LENGTH_LONG).show();
-                            return;
-                        }
-                        session.saveSession(body.user.id, body.accessToken, body.refreshToken);
-                        session.cacheEmail(email.getText().toString().trim());
-                        session.cacheProfile(name.getText().toString().trim(), "voter", false);
-                        open(VerificationActivity.class);
-                        finish();
-                    }
 
-                    @Override
-                    public void onFailure(Call<AuthApi.AuthResponse> call, Throwable t) {
-                        Toast.makeText(RegisterActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
-                    }
-                });
+        AuthApi.SignUpRequest request =
+                new AuthApi.SignUpRequest(emailAddress, passwordValue, metadata);
+
+        api.signUp(request).enqueue(new Callback<AuthApi.AuthResponse>() {
+            @Override
+            public void onResponse(
+                    Call<AuthApi.AuthResponse> call,
+                    Response<AuthApi.AuthResponse> response
+            ) {
+                AuthApi.AuthResponse body = response.body();
+
+                if (!response.isSuccessful() || body == null) {
+                    Toast.makeText(
+                            RegisterActivity.this,
+                            "Registration failed. Please check your details and try again.",
+                            Toast.LENGTH_LONG
+                    ).show();
+                    return;
+                }
+
+                session.cacheEmail(emailAddress);
+                session.cacheProfile(fullName, "voter", false);
+
+                Toast.makeText(
+                        RegisterActivity.this,
+                        "Account created. Check your email for the verification link, then log in.",
+                        Toast.LENGTH_LONG
+                ).show();
+
+                open(LoginActivity.class);
+                finish();
+
+                Toast.makeText(
+                        RegisterActivity.this,
+                        "Account created. Check your email for the verification link.",
+                        Toast.LENGTH_LONG
+                ).show();
+
+                open(LoginActivity.class);
+                finish();
+            }
+
+            @Override
+            public void onFailure(
+                    Call<AuthApi.AuthResponse> call,
+                    Throwable t
+            ) {
+                Toast.makeText(
+                        RegisterActivity.this,
+                        "Network error. Check your internet connection.",
+                        Toast.LENGTH_LONG
+                ).show();
+            }
+        });
     }
 }
