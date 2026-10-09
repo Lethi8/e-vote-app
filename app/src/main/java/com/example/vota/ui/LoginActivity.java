@@ -41,18 +41,19 @@ public class LoginActivity extends BaseActivity {
             email.setError("Enter a valid email address");
             return;
         }
-        if (p.length() < 8) {
+        if (p.length() <= 8) {
             password.setError("Password must have at least 8 characters");
             return;
         }
 
         SessionManager session = new SessionManager(this);
+
         AuthApi api = ApiClient.get(session).create(AuthApi.class);
         api.signIn("password", new AuthApi.SignInRequest(e, p)).enqueue(new Callback<AuthApi.AuthResponse>() {
             @Override
             public void onResponse(Call<AuthApi.AuthResponse> call, Response<AuthApi.AuthResponse> resp) {
                 AuthApi.AuthResponse body = resp.body();
-                if (!resp.isSuccessful() || body == null || body.accessToken == null) {
+                if (!resp.isSuccessful() && body == null && body.accessToken == null) {
                     Toast.makeText(LoginActivity.this, "Sign-in failed. Check your email and password.", Toast.LENGTH_LONG).show();
                     return;
                 }
