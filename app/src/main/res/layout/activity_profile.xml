@@ -30,10 +30,46 @@
 
         <LinearLayout style="@style/VotaCard" android:layout_marginTop="16dp" android:orientation="vertical">
             <TextView style="@style/VotaTitle" android:text="Security" />
-            <Button android:id="@+id/btnChangePassword" style="@style/VotaSecondaryButton" android:text="Change password" />
-            <Button android:id="@+id/btnSignOut" style="@style/VotaSecondaryButton" android:text="Sign out" />
-            <Button android:id="@+id/btnSignOutEverywhere" style="@style/VotaSecondaryButton" android:text="Sign out of all devices" />
-            <Button android:id="@+id/btnSecurityInfo" style="@style/VotaTextButton" android:text="How Vota protects ballots" />
+            <Button
+                android:id="@+id/btnChangePassword" style="@style/VotaSecondaryButton"
+                android:text="Change password" />
+            <Button
+                android:id="@+id/btnSignOut" style="@style/VotaSecondaryButton"
+                android:text="Sign out" />
+            <Button
+                android:id="@+id/btnSignOutEverywhere" style="@style/VotaSecondaryButton"
+                android:text="Sign out of all devices" />
+            <Button
+                android:id="@+id/btnSecurityInfo" style="@style/VotaTextButton"
+                android:text="How Vota protects ballots" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/VotaCard" android:layout_marginTop="16dp" android:orientation="vertical">
+            <TextView style="@style/VotaTitle" android:text="Appearance" />
+            <RadioGroup
+                android:id="@+id/radioTheme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp">
+                <RadioButton
+                    android:id="@+id/radioThemeLight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/vota_text"
+                    android:text="Light" />
+                <RadioButton
+                    android:id="@+id/radioThemeDark"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/vota_text"
+                    android:text="Dark" />
+                <RadioButton
+                    android:id="@+id/radioThemeSystem"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/vota_text"
+                    android:text="Match device setting" />
+            </RadioGroup>
         </LinearLayout>
 
         <LinearLayout style="@style/VotaCard" android:layout_marginTop="16dp" android:orientation="vertical">

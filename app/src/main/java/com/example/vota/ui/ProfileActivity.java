@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +18,7 @@ import com.example.vota.net.ApiClient;
 import com.example.vota.net.AuthApi;
 import com.example.vota.net.RestApi;
 import com.example.vota.util.SessionManager;
+import com.example.vota.util.ThemeManager;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,8 +51,33 @@ public class ProfileActivity extends BaseActivity {
         findViewById(R.id.btnEditPhone).setOnClickListener(v -> showEditPhoneDialog());
         findViewById(R.id.btnDeleteAccount).setOnClickListener(v -> showDeleteAccountDialog());
 
+        setUpThemeControls();
+
         loadProfile();
         loadParticipationHistory();
+    }
+
+    private void setUpThemeControls() {
+        RadioGroup radioTheme = findViewById(R.id.radioTheme);
+
+        int currentMode = ThemeManager.getMode(this);
+        if (currentMode == ThemeManager.MODE_LIGHT) radioTheme.check(R.id.radioThemeLight);
+        else if (currentMode == ThemeManager.MODE_DARK) radioTheme.check(R.id.radioThemeDark);
+        else radioTheme.check(R.id.radioThemeSystem);
+
+        radioTheme.setOnCheckedChangeListener((group, checkedId) -> {
+            int mode;
+            if (checkedId == R.id.radioThemeLight) mode = ThemeManager.MODE_LIGHT;
+            else if (checkedId == R.id.radioThemeDark) mode = ThemeManager.MODE_DARK;
+            else mode = ThemeManager.MODE_SYSTEM;
+
+            ThemeManager.setMode(this, mode);
+            recreate();
+            // recreate() rebuilds this screen immediately under the new
+            // theme; AppCompat also auto-recreates other running
+            // activities, but calling it explicitly here guarantees this
+            // one updates right away regardless of AppCompat version
+        });
     }
 
     private void loadProfile() {
@@ -192,7 +219,7 @@ public class ProfileActivity extends BaseActivity {
     private void signOutEverywhere() {
         authApi.logout("global").enqueue(new Callback<Void>() {
             @Override public void onResponse(Call<Void> outCall, Response<Void> outResp) {
-                signOut(); // this device's own session is now invalid too
+                signOut();
             }
             @Override public void onFailure(Call<Void> outCall, Throwable outT) {
                 Toast.makeText(ProfileActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
