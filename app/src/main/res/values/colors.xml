@@ -4,9 +4,10 @@
     <color name="vota_green_dark">#0E4423</color>
     <color name="vota_mint">#DCFCE7</color>
     <color name="vota_bg">#F8FAFC</color>
+    <color name="vota_surface">#FFFFFF</color>
     <color name="vota_text">#111827</color>
-    <color name="vota_muted">#64748B</color>
+    <color name="vota_muted">#475569</color>
     <color name="white">#FFFFFF</color>
-    <color name="border">#DDE4EA</color>
+    <color name="border">#CBD5E1</color>
     <color name="danger">#B91C1C</color>
 </resources>
