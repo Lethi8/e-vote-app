@@ -51,10 +51,5 @@
             style="@style/VotaTextButton"
             android:text="Create voter account" />
 
-        <TextView
-            style="@style/VotaCaption"
-            android:layout_marginTop="18dp"
-            android:text="Demo mode uses local sample data. Connect Supabase before production use." />
-
     </LinearLayout>
 </ScrollView>

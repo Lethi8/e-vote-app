@@ -3,4 +3,10 @@
         <item name="colorPrimary">#86EFAC</item>
         <item name="android:statusBarColor">#0F172A</item>
     </style>
+
+    <style name="Theme.Vota.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/vota_green</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_mark</item>
+        <item name="postSplashScreenTheme">@style/Theme.Vota</item>
+    </style>
 </resources>
