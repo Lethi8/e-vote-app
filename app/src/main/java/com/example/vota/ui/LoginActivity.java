@@ -1,6 +1,7 @@
 package com.example.vota.ui;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
@@ -19,74 +20,169 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LoginActivity extends BaseActivity {
-    private EditText email, password;
+
+    private static final String TAG = "VOTA_LOGIN";
+
+    private EditText email;
+    private EditText password;
+    private View btnSignIn;
+    private boolean isSigningIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         email = findViewById(R.id.edtEmail);
         password = findViewById(R.id.edtPassword);
+        btnSignIn = findViewById(R.id.btnSignIn);
 
-        findViewById(R.id.btnDemoVoter).setVisibility(View.GONE); // real auth only
+        View demo = findViewById(R.id.btnDemoVoter);
+        if (demo != null) {
+            demo.setVisibility(View.GONE);
+        }
 
-        findViewById(R.id.btnSignIn).setOnClickListener(v -> signIn());
-        findViewById(R.id.btnRegister).setOnClickListener(v -> open(RegisterActivity.class));
+        btnSignIn.setOnClickListener(v -> signIn());
+
+        findViewById(R.id.btnRegister).setOnClickListener(
+                v -> open(RegisterActivity.class)
+        );
+    }
+
+    private void setBusy(boolean busy) {
+        isSigningIn = busy;
+        btnSignIn.setEnabled(!busy);
+    }
+
+    private void toast(String msg) {
+        if (!isFinishing() && !isDestroyed()) {
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+        }
     }
 
     private void signIn() {
-        String e = email.getText().toString().trim();
-        String p = password.getText().toString();
+        if (isSigningIn) {
+            return;
+        }
+
+        final String e = email.getText().toString().trim();
+        final String p = password.getText().toString();
+
         if (!Patterns.EMAIL_ADDRESS.matcher(e).matches()) {
             email.setError("Enter a valid email address");
+            email.requestFocus();
             return;
         }
-        if (p.length() <= 8) {
+
+        if (p.length() < 8) {
             password.setError("Password must have at least 8 characters");
+            password.requestFocus();
             return;
         }
 
-        SessionManager session = new SessionManager(this);
+        setBusy(true);
 
-        AuthApi api = ApiClient.get(session).create(AuthApi.class);
-        api.signIn("password", new AuthApi.SignInRequest(e, p)).enqueue(new Callback<AuthApi.AuthResponse>() {
+        final SessionManager session = new SessionManager(getApplicationContext());
+        final AuthApi api;
+        try {
+            api = ApiClient.get(session).create(AuthApi.class);
+        } catch (Exception ex) {
+            // Surfaces Retrofit setup problems (bad base URL, bad annotations) instead of crashing.
+            Log.e(TAG, "Could not create API client", ex);
+            setBusy(false);
+            toast("App configuration error. Check the Supabase URL and key.");
+            return;
+        }
+
+        AuthApi.SignInRequest request = new AuthApi.SignInRequest(e, p);
+
+        api.signIn("password", request).enqueue(new Callback<AuthApi.AuthResponse>() {
+
             @Override
-            public void onResponse(Call<AuthApi.AuthResponse> call, Response<AuthApi.AuthResponse> resp) {
+            public void onResponse(Call<AuthApi.AuthResponse> call,
+                                   Response<AuthApi.AuthResponse> resp) {
+                setBusy(false);
+
                 AuthApi.AuthResponse body = resp.body();
-                if (!resp.isSuccessful() && body == null && body.accessToken == null) {
-                    Toast.makeText(LoginActivity.this, "Sign-in failed. Check your email and password.", Toast.LENGTH_LONG).show();
+
+                if (!resp.isSuccessful()
+                        || body == null
+                        || body.accessToken == null
+                        || body.user == null
+                        || body.user.id == null) {
+
+                    logErrorBody(resp);
+                    toast("Sign-in failed. Check your email, password, and email verification.");
                     return;
                 }
+
                 session.saveSession(body.user.id, body.accessToken, body.refreshToken);
                 session.cacheEmail(e);
+
                 loadProfileThenContinue(session);
             }
 
             @Override
             public void onFailure(Call<AuthApi.AuthResponse> call, Throwable t) {
-                Toast.makeText(LoginActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
+                setBusy(false);
+                Log.e(TAG, "Sign-in request failed", t);
+                toast("Network error. Check your connection and try again.");
             }
         });
     }
 
-    private void loadProfileThenContinue(SessionManager session) {
+    private void loadProfileThenContinue(final SessionManager session) {
         RestApi api = ApiClient.get(session).create(RestApi.class);
+
         api.myProfile("eq." + session.userId()).enqueue(new Callback<List<RestApi.Profile>>() {
+
             @Override
-            public void onResponse(Call<List<RestApi.Profile>> call, Response<List<RestApi.Profile>> resp) {
-                if (resp.isSuccessful() && resp.body() != null && !resp.body().isEmpty()) {
-                    RestApi.Profile pr = resp.body().get(0);
-                    session.cacheProfile(pr.full_name, pr.role, pr.verified);
+            public void onResponse(Call<List<RestApi.Profile>> call,
+                                   Response<List<RestApi.Profile>> resp) {
+                List<RestApi.Profile> list = resp.body();
+
+                if (resp.isSuccessful() && list != null && !list.isEmpty()) {
+                    RestApi.Profile profile = list.get(0);
+
+                    // Boolean.TRUE.equals handles a null "verified" column safely.
+                    session.cacheProfile(
+                            profile.full_name,
+                            profile.role,
+                            Boolean.TRUE.equals(profile.verified)
+                    );
+                } else {
+                    logErrorBody(resp);
                 }
-                open(HomeActivity.class);
-                finish();
+
+                goHome();
             }
 
             @Override
             public void onFailure(Call<List<RestApi.Profile>> call, Throwable t) {
-                open(HomeActivity.class);
-                finish();
+                Log.e(TAG, "Failed to load user profile", t);
+                // The user is already signed in, so continue with default profile values.
+                goHome();
             }
         });
+    }
+
+    private void goHome() {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+        open(HomeActivity.class);
+        finish();
+    }
+
+    private void logErrorBody(Response<?> resp) {
+        try {
+            if (resp.errorBody() != null) {
+                Log.e(TAG, "HTTP " + resp.code() + ": " + resp.errorBody().string());
+            } else {
+                Log.e(TAG, "HTTP " + resp.code() + " with empty or invalid body");
+            }
+        } catch (Exception ex) {
+            Log.e(TAG, "Could not read error body", ex);
+        }
     }
 }
