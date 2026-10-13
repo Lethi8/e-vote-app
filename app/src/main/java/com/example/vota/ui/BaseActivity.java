@@ -15,7 +15,6 @@ import com.example.vota.R;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
-    //  Keeps content clear of the system bars on Android 15+ (edge-to-edge)
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);

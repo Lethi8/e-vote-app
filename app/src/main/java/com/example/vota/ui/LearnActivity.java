@@ -42,9 +42,6 @@ public class LearnActivity extends BaseActivity {
                 badgeApi.awardBadge(badgeBody).enqueue(new Callback<Void>() {
                     @Override public void onResponse(Call<Void> badgeCall, Response<Void> badgeResp) {}
                     @Override public void onFailure(Call<Void> badgeCall, Throwable badgeT) {}
-                    // fire-and-forget: no UI feedback needed here, and failure is
-                    // harmless — it just means the badge doesn't show up until
-                    // the next successful call
                 });
             }
 
