@@ -101,5 +101,11 @@
             style="@style/VotaSecondaryButton"
             android:text="Profile and security" />
 
+        <Button
+            android:id="@+id/btnAdmin"
+            style="@style/VotaSecondaryButton"
+            android:text="Admin dashboard"
+            android:visibility="gone" />
+
     </LinearLayout>
 </ScrollView>

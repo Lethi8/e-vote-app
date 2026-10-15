@@ -31,6 +31,17 @@ public interface RestApi {
     );
 
 
+    @POST("rest/v1/elections")
+    Call<Void> createElection(@Header("Prefer") String prefer, @Body Map<String, Object> election);
+
+    @PATCH("rest/v1/elections")
+    Call<Void> updateElection(@Query("id") String idFilter,
+                              @Header("Prefer") String prefer,
+                              @Body Map<String, Object> election);
+
+    @DELETE("rest/v1/elections")
+    Call<Void> deleteElection(@Query("id") String idFilter);
+
     // =========================
     // PARTIES
     // =========================
@@ -43,16 +54,12 @@ public interface RestApi {
     @GET("rest/v1/parties?select=*")
     Call<List<Party>> partiesAll();
 
-
-    // ADD PARTY
     @POST("rest/v1/parties")
     Call<Void> createParty(
             @Header("Prefer") String prefer,
             @Body Party party
     );
 
-
-    // UPDATE PARTY
     @PATCH("rest/v1/parties")
     Call<Void> updateParty(
             @Query("id") String idFilter,
@@ -60,12 +67,18 @@ public interface RestApi {
             @Body Party party
     );
 
-
-    // DELETE PARTY
     @DELETE("rest/v1/parties")
     Call<Void> deleteParty(
             @Query("id") String idFilter
     );
+
+
+    // =========================
+    // AUDIT LOGS
+    // =========================
+
+    @GET("rest/v1/audit_logs?select=*&order=created_at.desc")
+    Call<List<AuditLogRow>> auditLogs();
 
 
     // =========================
@@ -169,6 +182,14 @@ public interface RestApi {
     // =========================
     // RESPONSE MODELS
     // =========================
+
+    class AuditLogRow {
+        public long id;
+        public String user_id;
+        public String action;
+        public String description;
+        public String created_at;
+    }
 
     class BadgeRow {
         public String code;
