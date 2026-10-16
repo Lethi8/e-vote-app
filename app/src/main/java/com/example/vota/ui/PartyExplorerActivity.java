@@ -1,6 +1,9 @@
 package com.example.vota.ui;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,6 +16,7 @@ import com.example.vota.model.Party;
 import com.example.vota.net.ApiClient;
 import com.example.vota.net.RestApi;
 import com.example.vota.util.SessionManager;
+import com.example.vota.util.SkeletonUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +39,12 @@ public class PartyExplorerActivity extends BaseActivity {
         RecyclerView recycler = findViewById(R.id.recycler);
         recycler.setLayoutManager(new LinearLayoutManager(this));
 
+        FrameLayout skeletonFrame = findViewById(R.id.skeletonFrame);
+        LinearLayout skeletonContainer = findViewById(R.id.skeletonContainer);
+        ShimmerView shimmerOverlay = findViewById(R.id.shimmerOverlay);
+        SkeletonUtil.showSkeletonList(skeletonFrame, skeletonContainer, shimmerOverlay, R.layout.item_skeleton_card, 3);
+        recycler.setVisibility(View.GONE);
+
         SessionManager session = new SessionManager(this);
         RestApi api = ApiClient.get(session).create(RestApi.class);
         String electionId = getIntent().getStringExtra("election_id");
@@ -42,6 +52,9 @@ public class PartyExplorerActivity extends BaseActivity {
         Callback<List<Party>> callback = new Callback<List<Party>>() {
             @Override
             public void onResponse(Call<List<Party>> call, Response<List<Party>> resp) {
+                SkeletonUtil.hideSkeletonList(skeletonFrame, skeletonContainer, shimmerOverlay);
+                recycler.setVisibility(View.VISIBLE);
+
                 if (!resp.isSuccessful() || resp.body() == null) {
                     Toast.makeText(PartyExplorerActivity.this, "Could not load parties.", Toast.LENGTH_LONG).show();
                     return;
@@ -61,14 +74,13 @@ public class PartyExplorerActivity extends BaseActivity {
                 badgeApi.awardBadge(badgeBody).enqueue(new Callback<Void>() {
                     @Override public void onResponse(Call<Void> badgeCall, Response<Void> badgeResp) {}
                     @Override public void onFailure(Call<Void> badgeCall, Throwable badgeT) {}
-                    // fire-and-forget: no UI feedback needed here, and failure is
-                    // harmless — it just means the badge doesn't show up until
-                    // the next successful call
                 });
             }
 
             @Override
             public void onFailure(Call<List<Party>> call, Throwable t) {
+                SkeletonUtil.hideSkeletonList(skeletonFrame, skeletonContainer, shimmerOverlay);
+                recycler.setVisibility(View.VISIBLE);
                 Toast.makeText(PartyExplorerActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
             }
         };

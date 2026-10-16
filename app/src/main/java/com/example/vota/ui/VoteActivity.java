@@ -64,8 +64,9 @@ public class VoteActivity extends BaseActivity {
                     rb.setId(View.generateViewId());
                     rb.setTag(p);
                     rb.setText(p.name + " (" + p.abbreviation + ")");
-                    rb.setPadding(8, 18, 8, 18);
-                    rb.setTextColor(androidx.core.content.ContextCompat.getColor(VoteActivity.this, R.color.vota_text));
+                    int pad = (int) (12 * getResources().getDisplayMetrics().density);
+                    rb.setPadding(pad, pad, pad, pad);
+                    rb.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));                    rb.setTextColor(androidx.core.content.ContextCompat.getColor(VoteActivity.this, R.color.vota_text));
                     rb.setTextSize(16);
                     group.addView(rb);
                 }
