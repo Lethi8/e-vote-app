@@ -10,19 +10,28 @@
         android:orientation="vertical"
         android:padding="22dp">
 
-        <TextView
-            android:id="@+id/txtEyebrow"
-            style="@style/VotaEyebrow" />
+        <TextView android:id="@+id/txtEyebrow" style="@style/VotaEyebrow" />
+        <TextView android:id="@+id/txtTitle" style="@style/VotaHero" android:layout_marginTop="8dp" />
+        <TextView android:id="@+id/txtBody" style="@style/VotaBody" android:layout_marginTop="14dp" />
 
-        <TextView
-            android:id="@+id/txtTitle"
-            style="@style/VotaHero"
-            android:layout_marginTop="8dp" />
+        <FrameLayout
+            android:id="@+id/skeletonFrame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:visibility="gone">
 
-        <TextView
-            android:id="@+id/txtBody"
-            style="@style/VotaBody"
-            android:layout_marginTop="14dp" />
+            <LinearLayout
+                android:id="@+id/skeletonContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <com.example.vota.ui.ShimmerView
+                android:id="@+id/shimmerOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/contentContainer"
@@ -30,16 +39,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
-        <Button
-            android:id="@+id/btnPrimary"
-            style="@style/VotaPrimaryButton"
-            android:layout_marginTop="20dp"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/btnSecondary"
-            style="@style/VotaSecondaryButton"
-            android:visibility="gone" />
+        <Button android:id="@+id/btnPrimary" style="@style/VotaPrimaryButton" android:layout_marginTop="20dp" android:visibility="gone" />
+        <Button android:id="@+id/btnSecondary" style="@style/VotaSecondaryButton" android:visibility="gone" />
 
     </LinearLayout>
 </ScrollView>

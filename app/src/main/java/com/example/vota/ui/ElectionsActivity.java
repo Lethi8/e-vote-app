@@ -42,7 +42,7 @@ public class ElectionsActivity extends BaseActivity {
         LinearLayout skeletonContainer = findViewById(R.id.skeletonContainer);
         ShimmerView shimmerOverlay = findViewById(R.id.shimmerOverlay);
 
-        SkeletonUtil.showSkeletonList(skeletonFrame, skeletonContainer, shimmerOverlay, 3);
+        SkeletonUtil.showSkeletonList(skeletonFrame, skeletonContainer, shimmerOverlay, R.layout.item_skeleton_card, 3);
         recycler.setVisibility(View.GONE);
 
         SessionManager session = new SessionManager(this);

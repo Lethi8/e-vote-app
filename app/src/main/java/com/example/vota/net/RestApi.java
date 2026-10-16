@@ -60,6 +60,14 @@ public interface RestApi {
     @GET("rest/v1/voter_participation?select=election_id,participated_at,receipt_hash,elections(title)&order=participated_at.desc")
     Call<List<ParticipationRow>> myParticipationHistory();
 
+    @GET("rest/v1/notifications?select=*&order=created_at.desc")
+    Call<List<NotificationRow>> myNotifications();
+
+    class NotificationRow {
+        public String title;
+        public String body;
+    }
+
     class BadgeRow {
         public String code;
         public String earned_at;

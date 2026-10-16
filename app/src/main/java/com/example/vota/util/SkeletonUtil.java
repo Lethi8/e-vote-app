@@ -5,18 +5,17 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import com.example.vota.R;
 import com.example.vota.ui.ShimmerView;
 
 public final class SkeletonUtil {
     private SkeletonUtil() {}
 
-    public static void showSkeletonList(FrameLayout frame, LinearLayout container, ShimmerView shimmer, int count) {
+    public static void showSkeletonList(FrameLayout frame, LinearLayout container, ShimmerView shimmer, int layoutRes, int count) {
         container.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(container.getContext());
         for (int i = 0; i < count; i++) {
-            View card = inflater.inflate(R.layout.item_skeleton_card, container, false);
-            container.addView(card);
+            View v = inflater.inflate(layoutRes, container, false);
+            container.addView(v);
         }
         frame.setVisibility(View.VISIBLE);
         shimmer.startShimmer();
