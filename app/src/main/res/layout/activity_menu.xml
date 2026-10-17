@@ -1,0 +1,121 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/vota_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            style="@style/VotaLogo"
+            android:text="VOTA" />
+
+        <TextView
+            style="@style/VotaEyebrow"
+            android:layout_marginTop="26dp"
+            android:text="MAIN MENU" />
+
+        <TextView
+            android:id="@+id/txtMenuWelcome"
+            style="@style/VotaHero"
+            android:text="Welcome to VOTA" />
+
+        <TextView
+            style="@style/VotaBody"
+            android:layout_marginTop="10dp"
+            android:text="Choose what you would like to do." />
+
+        <!-- MAIN VOTING BUTTON -->
+
+        <LinearLayout
+            style="@style/VotaCard"
+            android:layout_marginTop="22dp"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/VotaTitle"
+                android:text="Ready to vote?" />
+
+            <TextView
+                style="@style/VotaBody"
+                android:layout_marginTop="8dp"
+                android:text="Find your election and continue to the ballot." />
+
+            <Button
+                android:id="@+id/btnMenuVote"
+                style="@style/VotaPrimaryButton"
+                android:text="CAST YOUR VOTE" />
+
+        </LinearLayout>
+
+        <!-- OTHER FEATURES -->
+
+        <TextView
+            style="@style/VotaTitle"
+            android:layout_marginTop="24dp"
+            android:text="Explore VOTA" />
+
+        <Button
+            android:id="@+id/btnMenuHome"
+            style="@style/VotaSecondaryButton"
+            android:text="Voting hub" />
+
+        <Button
+            android:id="@+id/btnMenuParties"
+            style="@style/VotaSecondaryButton"
+            android:text="Political parties" />
+
+        <Button
+            android:id="@+id/btnMenuLearn"
+            style="@style/VotaSecondaryButton"
+            android:text="Voter education" />
+
+        <Button
+            android:id="@+id/btnMenuResults"
+            style="@style/VotaSecondaryButton"
+            android:text="Election results" />
+
+        <Button
+            android:id="@+id/btnMenuNotifications"
+            style="@style/VotaSecondaryButton"
+            android:text="Notifications" />
+
+        <Button
+            android:id="@+id/btnMenuBadges"
+            style="@style/VotaSecondaryButton"
+            android:text="My badges" />
+
+        <Button
+            android:id="@+id/btnMenuVerify"
+            style="@style/VotaSecondaryButton"
+            android:text="Verify identity" />
+
+        <Button
+            android:id="@+id/btnMenuProfile"
+            style="@style/VotaSecondaryButton"
+            android:text="Profile and security" />
+
+        <!-- ONLY VISIBLE TO ADMINS -->
+
+        <Button
+            android:id="@+id/btnMenuAdmin"
+            style="@style/VotaSecondaryButton"
+            android:text="Admin dashboard"
+            android:visibility="gone" />
+
+        <!-- SIGN OUT -->
+
+        <Button
+            android:id="@+id/btnMenuLogout"
+            style="@style/VotaSmallButton"
+            android:layout_marginTop="18dp"
+            android:text="Sign out" />
+
+    </LinearLayout>
+
+</ScrollView>
