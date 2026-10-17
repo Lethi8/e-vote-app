@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/vota_bg"
+    android:background="?android:attr/colorBackground"
     android:orientation="vertical"
     android:padding="20dp">
 
@@ -14,6 +14,26 @@
     <TextView
         android:id="@+id/txtSubtitle"
         style="@style/VotaBody" />
+
+    <FrameLayout
+        android:id="@+id/skeletonFrame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/skeletonContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <com.example.vota.ui.ShimmerView
+            android:id="@+id/shimmerOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"
