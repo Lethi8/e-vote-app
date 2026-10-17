@@ -13,15 +13,20 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public final class ApiClient {
     private static Retrofit retrofit;
 
-    public static Retrofit get(SessionManager session) {
+    private ApiClient() {}
+
+    public static synchronized Retrofit get(SessionManager session) {
         if (retrofit == null) {
             Interceptor auth = chain -> {
-                Request original = chain.request();
-                Request.Builder b = original.newBuilder()
-                        .header("apikey", BuildConfig.SUPABASE_ANON_KEY)
-                        .header("Content-Type", "application/json");
+                Request.Builder b = chain.request().newBuilder()
+                        .header("apikey", BuildConfig.SUPABASE_ANON_KEY);
+
+                // Only send a user token once we actually have one.
+                // (Content-Type is set by Retrofit from the @Body, so we don't add it.)
                 String token = session.accessToken();
-                b.header("Authorization", "Bearer " + (token.isEmpty() ? BuildConfig.SUPABASE_ANON_KEY : token));
+                if (token != null && !token.isEmpty()) {
+                    b.header("Authorization", "Bearer " + token);
+                }
                 return chain.proceed(b.build());
             };
 
@@ -29,14 +34,20 @@ public final class ApiClient {
             logging.setLevel(BuildConfig.DEBUG
                     ? HttpLoggingInterceptor.Level.BODY
                     : HttpLoggingInterceptor.Level.NONE);
+            // Keep secrets out of Logcat even in debug builds.
+            logging.redactHeader("apikey");
+            logging.redactHeader("Authorization");
 
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(auth)
                     .addInterceptor(logging)
                     .build();
 
+            // Strip any trailing slashes, then add exactly one.
+            String baseUrl = BuildConfig.SUPABASE_URL.trim().replaceAll("/+$", "") + "/";
+
             retrofit = new Retrofit.Builder()
-                    .baseUrl(BuildConfig.SUPABASE_URL + "/")
+                    .baseUrl(baseUrl)
                     .client(client)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
