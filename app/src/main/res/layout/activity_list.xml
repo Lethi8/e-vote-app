@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/vota_bg"
+    android:background="?android:attr/colorBackground"
     android:orientation="vertical"
     android:padding="20dp">
 
@@ -15,34 +15,25 @@
         android:id="@+id/txtSubtitle"
         style="@style/VotaBody" />
 
-    <!-- Only shown by PartyExplorerActivity -->
-    <EditText
-        android:id="@+id/edtSearch"
+    <FrameLayout
+        android:id="@+id/skeletonFrame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Search parties"
-        android:inputType="text"
-        android:singleLine="true"
-        android:visibility="gone" />
+        android:visibility="gone">
 
-    <!-- Only shown by PartyExplorerActivity -->
-    <Spinner
-        android:id="@+id/spnSort"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:visibility="gone" />
+        <LinearLayout
+            android:id="@+id/skeletonContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
 
-    <TextView
-        android:id="@+id/txtEmpty"
-        style="@style/VotaBody"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="center"
-        android:text="No parties found."
-        android:visibility="gone" />
+        <com.example.vota.ui.ShimmerView
+            android:id="@+id/shimmerOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"

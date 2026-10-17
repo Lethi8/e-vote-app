@@ -1,6 +1,21 @@
 <resources>
     <style name="Theme.Vota" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">#86EFAC</item>
-        <item name="android:statusBarColor">#0F172A</item>
+        <item name="colorOnPrimary">#0F172A</item>
+        <item name="colorSurface">@color/vota_surface</item>
+        <item name="colorOnSurface">@color/vota_text</item>
+        <item name="colorOnSurfaceVariant">@color/vota_muted</item>
+        <item name="colorOutline">@color/border</item>
+        <item name="android:colorBackground">@color/vota_bg</item>
+        <item name="colorError">@color/danger</item>
+        <item name="colorOnError">#0F172A</item>
+        <item name="android:statusBarColor">@color/vota_bg</item>
+        <item name="android:navigationBarColor">@color/vota_surface</item>
+    </style>
+
+    <style name="Theme.Vota.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/vota_green</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_mark</item>
+        <item name="postSplashScreenTheme">@style/Theme.Vota</item>
     </style>
 </resources>

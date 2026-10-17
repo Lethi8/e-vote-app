@@ -18,9 +18,9 @@ import retrofit2.http.Query;
 
 public interface RestApi {
 
-    // =========================
+
     // ELECTIONS
-    // =========================
+
 
     @GET("rest/v1/elections?select=*&order=opens_at.desc")
     Call<List<Election>> elections();
@@ -42,9 +42,8 @@ public interface RestApi {
     @DELETE("rest/v1/elections")
     Call<Void> deleteElection(@Query("id") String idFilter);
 
-    // =========================
+
     // PARTIES
-    // =========================
 
     @GET("rest/v1/parties?select=*")
     Call<List<Party>> partiesForElection(
@@ -73,25 +72,21 @@ public interface RestApi {
     );
 
 
-    // =========================
+ 
     // AUDIT LOGS
-    // =========================
 
     @GET("rest/v1/audit_logs?select=*&order=created_at.desc")
     Call<List<AuditLogRow>> auditLogs();
 
 
-    // =========================
-    // EDUCATION
-    // =========================
+
+    // EDUCATION RESOURCES
 
     @GET("rest/v1/education_resources?select=*&order=sort_order.asc")
     Call<List<EducationResource>> educationResources();
 
 
-    // =========================
     // VOTING
-    // =========================
 
     @POST("rest/v1/rpc/cast_ballot")
     Call<String> castBallot(
@@ -99,9 +94,7 @@ public interface RestApi {
     );
 
 
-    // =========================
     // VERIFICATION
-    // =========================
 
     @POST("rest/v1/rpc/verify_demo")
     Call<Void> verifyDemo(
@@ -109,9 +102,8 @@ public interface RestApi {
     );
 
 
-    // =========================
+
     // RESULTS
-    // =========================
 
     @GET("rest/v1/rpc/get_results")
     Call<List<ResultRow>> results(
@@ -119,9 +111,8 @@ public interface RestApi {
     );
 
 
-    // =========================
+
     // PROFILE
-    // =========================
 
     @GET("rest/v1/profiles?select=*")
     Call<List<Profile>> myProfile(
@@ -129,20 +120,16 @@ public interface RestApi {
     );
 
 
-    // =========================
-    // RECEIPTS
-    // =========================
 
+    // RECEIPTS
     @GET("rest/v1/voter_participation?select=receipt_hash")
     Call<List<ReceiptRow>> myReceipt(
             @Query("election_id") String electionIdFilter
     );
 
 
-    // =========================
+  
     // BADGES
-    // =========================
-
     @GET("rest/v1/badges?select=code,earned_at")
     Call<List<BadgeRow>> myBadges();
 
@@ -152,10 +139,7 @@ public interface RestApi {
     );
 
 
-    // =========================
     // ACCOUNT
-    // =========================
-
     @POST("rest/v1/rpc/update_my_phone")
     Call<Void> updateMyPhone(
             @Body Map<String, String> body
@@ -167,10 +151,7 @@ public interface RestApi {
     );
 
 
-    // =========================
-    // PARTICIPATION HISTORY
-    // =========================
-
+        // PARTICIPATION HISTORY
     @GET(
             "rest/v1/voter_participation" +
                     "?select=election_id,participated_at,receipt_hash,elections(title)" +
@@ -178,17 +159,12 @@ public interface RestApi {
     )
     Call<List<ParticipationRow>> myParticipationHistory();
 
+    @GET("rest/v1/notifications?select=*&order=created_at.desc")
+    Call<List<NotificationRow>> myNotifications();
 
-    // =========================
-    // RESPONSE MODELS
-    // =========================
-
-    class AuditLogRow {
-        public long id;
-        public String user_id;
-        public String action;
-        public String description;
-        public String created_at;
+    class NotificationRow {
+        public String title;
+        public String body;
     }
 
     class BadgeRow {

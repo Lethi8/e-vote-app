@@ -8,6 +8,9 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +23,7 @@ import com.example.vota.model.Party;
 import com.example.vota.net.ApiClient;
 import com.example.vota.net.RestApi;
 import com.example.vota.util.SessionManager;
+import com.example.vota.util.SkeletonUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -62,126 +66,23 @@ public class PartyExplorerActivity extends BaseActivity {
         recycler = findViewById(R.id.recycler);
         recycler.setLayoutManager(new LinearLayoutManager(this));
 
-        edtSearch = findViewById(R.id.edtSearch);
-        spnSort = findViewById(R.id.spnSort);
-        txtEmpty = findViewById(R.id.txtEmpty);
-
-        edtSearch.setVisibility(View.VISIBLE);
-        spnSort.setVisibility(View.VISIBLE);
-
-        setupSearch();
-        setupSort();
+        FrameLayout skeletonFrame = findViewById(R.id.skeletonFrame);
+        LinearLayout skeletonContainer = findViewById(R.id.skeletonContainer);
+        ShimmerView shimmerOverlay = findViewById(R.id.shimmerOverlay);
+        SkeletonUtil.showSkeletonList(skeletonFrame, skeletonContainer, shimmerOverlay, R.layout.item_skeleton_card, 3);
+        recycler.setVisibility(View.GONE);
 
         SessionManager session = new SessionManager(this);
 
-        RestApi api = ApiClient
-                .get(session)
-                .create(RestApi.class);
+        Callback<List<Party>> callback = new Callback<List<Party>>() {
+            @Override
+            public void onResponse(Call<List<Party>> call, Response<List<Party>> resp) {
+                SkeletonUtil.hideSkeletonList(skeletonFrame, skeletonContainer, shimmerOverlay);
+                recycler.setVisibility(View.VISIBLE);
 
-        String electionId =
-                getIntent().getStringExtra("election_id");
-
-        Callback<List<Party>> callback =
-                new Callback<List<Party>>() {
-
-                    @Override
-                    public void onResponse(
-                            Call<List<Party>> call,
-                            Response<List<Party>> response
-                    ) {
-
-                        if (!response.isSuccessful()) {
-                            showError(
-                                    "Could not load parties. HTTP "
-                                            + response.code()
-                            );
-                            return;
-                        }
-
-                        List<Party> loadedParties =
-                                response.body();
-
-                        allParties.clear();
-
-                        if (loadedParties != null) {
-                            allParties.addAll(loadedParties);
-                        }
-
-                        applyFilters();
-
-                        if (!allParties.isEmpty()) {
-                            awardPartyExplorerBadge(session);
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(
-                            Call<List<Party>> call,
-                            Throwable t
-                    ) {
-
-                        String message = t.getMessage();
-
-                        if (message == null
-                                || message.trim().isEmpty()) {
-                            message = "Unknown network error";
-                        }
-
-                        showError(
-                                "Network error: " + message
-                        );
-                    }
-                };
-
-        if (electionId != null
-                && !electionId.trim().isEmpty()) {
-
-            api.partiesForElection(
-                    "eq." + electionId
-            ).enqueue(callback);
-
-        } else {
-
-            api.partiesAll()
-                    .enqueue(callback);
-        }
-    }
-
-    private void setupSearch() {
-        edtSearch.addTextChangedListener(
-                new TextWatcher() {
-
-                    @Override
-                    public void beforeTextChanged(
-                            CharSequence s,
-                            int start,
-                            int count,
-                            int after
-                    ) {
-                    }
-
-                    @Override
-                    public void onTextChanged(
-                            CharSequence s,
-                            int start,
-                            int before,
-                            int count
-                    ) {
-                        currentSearch =
-                                s == null
-                                        ? ""
-                                        : s.toString()
-                                        .trim()
-                                        .toLowerCase(Locale.ROOT);
-
-                        applyFilters();
-                    }
-
-                    @Override
-                    public void afterTextChanged(
-                            Editable s
-                    ) {
-                    }
+                if (!resp.isSuccessful() || resp.body() == null) {
+                    Toast.makeText(PartyExplorerActivity.this, "Could not load parties.", Toast.LENGTH_LONG).show();
+                    return;
                 }
         );
     }
@@ -224,35 +125,15 @@ public class PartyExplorerActivity extends BaseActivity {
                     ) {
                     }
                 }
-        );
-    }
+                recycler.setAdapter(new CardAdapter(cards));
 
-    private void applyFilters() {
-        List<Party> filtered =
-                new ArrayList<>();
-
-        for (Party party : allParties) {
-
-            String name =
-                    safe(party.name)
-                            .toLowerCase(Locale.ROOT);
-
-            String abbreviation =
-                    safe(party.abbreviation)
-                            .toLowerCase(Locale.ROOT);
-
-            String description =
-                    safe(party.description)
-                            .toLowerCase(Locale.ROOT);
-
-            boolean matches =
-                    currentSearch.isEmpty()
-                            || name.contains(currentSearch)
-                            || abbreviation.contains(currentSearch)
-                            || description.contains(currentSearch);
-
-            if (matches) {
-                filtered.add(party);
+                RestApi badgeApi = ApiClient.get(session).create(RestApi.class);
+                Map<String, String> badgeBody = new HashMap<>();
+                badgeBody.put("p_code", "party_explorer");
+                badgeApi.awardBadge(badgeBody).enqueue(new Callback<Void>() {
+                    @Override public void onResponse(Call<Void> badgeCall, Response<Void> badgeResp) {}
+                    @Override public void onFailure(Call<Void> badgeCall, Throwable badgeT) {}
+                });
             }
         }
 
@@ -466,11 +347,10 @@ public class PartyExplorerActivity extends BaseActivity {
         ).enqueue(new Callback<Void>() {
 
             @Override
-            public void onResponse(
-                    Call<Void> call,
-                    Response<Void> response
-            ) {
-                // No UI feedback needed.
+            public void onFailure(Call<List<Party>> call, Throwable t) {
+                SkeletonUtil.hideSkeletonList(skeletonFrame, skeletonContainer, shimmerOverlay);
+                recycler.setVisibility(View.VISIBLE);
+                Toast.makeText(PartyExplorerActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
             }
 
             @Override

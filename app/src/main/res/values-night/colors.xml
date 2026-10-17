@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="vota_bg">#0F172A</color>
+    <color name="vota_surface">#1E293B</color>
+    <color name="vota_text">#F1F5F9</color>
+    <color name="vota_muted">#CBD5E1</color>
+    <color name="border">#64748B</color>
+    <color name="danger">#F87171</color>
+</resources>

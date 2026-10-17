@@ -23,11 +23,15 @@ public class LearnActivity extends BaseActivity {
         page("VOTER EDUCATION", "Know before you vote",
                 "Short, plain-language guides on voting in South Africa.");
 
+        showContentSkeleton(4);
+
         SessionManager session = new SessionManager(this);
         RestApi api = ApiClient.get(session).create(RestApi.class);
         api.educationResources().enqueue(new Callback<List<EducationResource>>() {
             @Override
             public void onResponse(Call<List<EducationResource>> call, Response<List<EducationResource>> resp) {
+                hideContentSkeleton();
+
                 if (!resp.isSuccessful() || resp.body() == null) {
                     Toast.makeText(LearnActivity.this, "Could not load resources.", Toast.LENGTH_LONG).show();
                     return;
@@ -42,15 +46,13 @@ public class LearnActivity extends BaseActivity {
                 badgeApi.awardBadge(badgeBody).enqueue(new Callback<Void>() {
                     @Override public void onResponse(Call<Void> badgeCall, Response<Void> badgeResp) {}
                     @Override public void onFailure(Call<Void> badgeCall, Throwable badgeT) {}
-                    // fire-and-forget: no UI feedback needed here, and failure is
-                    // harmless — it just means the badge doesn't show up until
-                    // the next successful call
                 });
             }
 
             @Override
             public void onFailure(Call<List<EducationResource>> call, Throwable t) {
-                Toast.makeText(LearnActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
+                hideContentSkeleton();
+                Toast.makeText(LearnActivity.this, "Network error. Check your connection big boss", Toast.LENGTH_LONG).show();
             }
         });
     }

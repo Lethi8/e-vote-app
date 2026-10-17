@@ -2,6 +2,7 @@
 package com.example.vota.ui;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
@@ -21,7 +22,12 @@ import retrofit2.Response;
 
 public class LoginActivity extends BaseActivity {
 
-    private EditText email, password;
+    private static final String TAG = "VOTA_LOGIN";
+
+    private EditText email;
+    private EditText password;
+    private View btnSignIn;
+    private boolean isSigningIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,49 +37,74 @@ public class LoginActivity extends BaseActivity {
 
         email = findViewById(R.id.edtEmail);
         password = findViewById(R.id.edtPassword);
+        btnSignIn = findViewById(R.id.btnSignIn);
 
-        findViewById(R.id.btnDemoVoter)
-                .setVisibility(View.GONE);
+        View demo = findViewById(R.id.btnDemoVoter);
+        if (demo != null) {
+            demo.setVisibility(View.GONE);
+        }
 
-        findViewById(R.id.btnSignIn)
-                .setOnClickListener(v -> signIn());
+        btnSignIn.setOnClickListener(v -> signIn());
 
-        findViewById(R.id.btnRegister)
-                .setOnClickListener(v ->
-                        open(RegisterActivity.class));
+        findViewById(R.id.btnRegister).setOnClickListener(
+                v -> open(RegisterActivity.class)
+        );
+    }
+
+    private void setBusy(boolean busy) {
+        isSigningIn = busy;
+        btnSignIn.setEnabled(!busy);
+    }
+
+    private void toast(String msg) {
+        if (!isFinishing() && !isDestroyed()) {
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+        }
     }
 
     // LOGIN WITH SUPABASE
     private void signIn() {
+        if (isSigningIn) {
+            return;
+        }
 
-        String e = email.getText().toString().trim();
-        String p = password.getText().toString();
+        final String e = email.getText().toString().trim();
+        final String p = password.getText().toString();
 
         if (!Patterns.EMAIL_ADDRESS.matcher(e).matches()) {
             email.setError("Enter a valid email address");
+            email.requestFocus();
             return;
         }
 
         if (p.length() < 8) {
-            password.setError(
-                    "Password must have at least 8 characters");
+            password.setError("Password must have at least 8 characters");
+            password.requestFocus();
             return;
         }
 
-        SessionManager session = new SessionManager(this);
+        setBusy(true);
 
-        AuthApi api = ApiClient.get(session)
-                .create(AuthApi.class);
+        final SessionManager session = new SessionManager(getApplicationContext());
+        final AuthApi api;
+        try {
+            api = ApiClient.get(session).create(AuthApi.class);
+        } catch (Exception ex) {
+            // Surfaces Retrofit setup problems (bad base URL, bad annotations) instead of crashing.
+            Log.e(TAG, "Could not create API client", ex);
+            setBusy(false);
+            toast("App configuration error. Check the Supabase URL and key.");
+            return;
+        }
 
-        api.signIn(
-                "password",
-                new AuthApi.SignInRequest(e, p)
-        ).enqueue(new Callback<AuthApi.AuthResponse>() {
+        AuthApi.SignInRequest request = new AuthApi.SignInRequest(e, p);
+
+        api.signIn("password", request).enqueue(new Callback<AuthApi.AuthResponse>() {
 
             @Override
-            public void onResponse(
-                    Call<AuthApi.AuthResponse> call,
-                    Response<AuthApi.AuthResponse> resp) {
+            public void onResponse(Call<AuthApi.AuthResponse> call,
+                                   Response<AuthApi.AuthResponse> resp) {
+                setBusy(false);
 
                 AuthApi.AuthResponse body = resp.body();
 
@@ -83,118 +114,78 @@ public class LoginActivity extends BaseActivity {
                         || body.user == null
                         || body.user.id == null) {
 
-                    Toast.makeText(
-                            LoginActivity.this,
-                            "Sign-in failed. Check your email and password.",
-                            Toast.LENGTH_LONG
-                    ).show();
+                    logErrorBody(resp);
+                    toast("Sign-in failed. Check your email, password, and email verification.");
                     return;
                 }
 
-                session.saveSession(
-                        body.user.id,
-                        body.accessToken,
-                        body.refreshToken
-                );
-
+                session.saveSession(body.user.id, body.accessToken, body.refreshToken);
                 session.cacheEmail(e);
 
                 loadProfileThenContinue(session);
             }
 
             @Override
-            public void onFailure(
-                    Call<AuthApi.AuthResponse> call,
-                    Throwable t) {
-
-                Toast.makeText(
-                        LoginActivity.this,
-                        "Network error. Check your connection.",
-                        Toast.LENGTH_LONG
-                ).show();
+            public void onFailure(Call<AuthApi.AuthResponse> call, Throwable t) {
+                setBusy(false);
+                Log.e(TAG, "Sign-in request failed", t);
+                toast("Network error. Check your connection and try again.");
             }
         });
     }
 
-    // LOAD USER PROFILE
-    private void loadProfileThenContinue(
-            SessionManager session) {
+    private void loadProfileThenContinue(final SessionManager session) {
+        RestApi api = ApiClient.get(session).create(RestApi.class);
 
-        RestApi api = ApiClient.get(session)
-                .create(RestApi.class);
-
-        api.myProfile(
-                "eq." + session.userId()
-        ).enqueue(new Callback<List<RestApi.Profile>>() {
+        api.myProfile("eq." + session.userId()).enqueue(new Callback<List<RestApi.Profile>>() {
 
             @Override
-            public void onResponse(
-                    Call<List<RestApi.Profile>> call,
-                    Response<List<RestApi.Profile>> resp) {
+            public void onResponse(Call<List<RestApi.Profile>> call,
+                                   Response<List<RestApi.Profile>> resp) {
+                List<RestApi.Profile> list = resp.body();
 
-                if (!resp.isSuccessful()) {
-                    session.logout();
+                if (resp.isSuccessful() && list != null && !list.isEmpty()) {
+                    RestApi.Profile profile = list.get(0);
 
-                    Toast.makeText(
-                            LoginActivity.this,
-                            "Profile loading failed. HTTP "
-                                    + resp.code(),
-                            Toast.LENGTH_LONG
-                    ).show();
-                    return;
+                    // Boolean.TRUE.equals handles a null "verified" column safely.
+                    session.cacheProfile(
+                            profile.full_name,
+                            profile.role,
+                            Boolean.TRUE.equals(profile.verified)
+                    );
+                } else {
+                    logErrorBody(resp);
                 }
 
-                if (resp.body() == null
-                        || resp.body().isEmpty()) {
-                    session.logout();
-
-                    Toast.makeText(
-                            LoginActivity.this,
-                            "No profile found for this account.",
-                            Toast.LENGTH_LONG
-                    ).show();
-                    return;
-                }
-
-                RestApi.Profile profile =
-                        resp.body().get(0);
-
-                if (profile.role == null
-                        || profile.role.trim().isEmpty()) {
-                    session.logout();
-
-                    Toast.makeText(
-                            LoginActivity.this,
-                            "Account role is missing.",
-                            Toast.LENGTH_LONG
-                    ).show();
-                    return;
-                }
-
-                session.cacheProfile(
-                        profile.full_name,
-                        profile.role.trim(),
-                        profile.verified
-                );
-
-                // NEW DESTINATION: SEPARATE MAIN MENU
-                open(MenuActivity.class);
-                finish();
+                goHome();
             }
 
             @Override
-            public void onFailure(
-                    Call<List<RestApi.Profile>> call,
-                    Throwable t) {
-
-                session.logout();
-
-                Toast.makeText(
-                        LoginActivity.this,
-                        "Could not load your profile. Check your connection.",
-                        Toast.LENGTH_LONG
-                ).show();
+            public void onFailure(Call<List<RestApi.Profile>> call, Throwable t) {
+                Log.e(TAG, "Failed to load user profile", t);
+                // The user is already signed in, so continue with default profile values.
+                goHome();
             }
         });
+    }
+
+    private void goHome() {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+        open(HomeActivity.class);
+        finish();
+    }
+
+    private void logErrorBody(Response<?> resp) {
+        try {
+            if (resp.errorBody() != null) {
+                Log.e(TAG, "HTTP " + resp.code() + ": " + resp.errorBody().string());
+            } else {
+                Log.e(TAG, "HTTP " + resp.code() + " with empty or invalid body");
+            }
+        } catch (Exception ex) {
+            Log.e(TAG, "Could not read error body", ex);
+        }
     }
 }
