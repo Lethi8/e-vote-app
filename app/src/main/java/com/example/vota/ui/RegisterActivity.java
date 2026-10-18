@@ -25,7 +25,8 @@ public class RegisterActivity extends BaseActivity {
         setContentView(R.layout.activity_register);
         findViewById(R.id.btnCreate).setOnClickListener(v -> create());
     }
-
+// runs all registration validations in sequence and each returns immediately on the first failure
+    //so that only one error shows at a time
     private void create() {
         EditText name = findViewById(R.id.edtName);
         EditText email = findViewById(R.id.edtEmail);

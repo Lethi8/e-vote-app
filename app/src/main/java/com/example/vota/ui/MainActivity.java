@@ -7,6 +7,7 @@ import androidx.core.splashscreen.SplashScreen;
 import com.example.vota.R;
 
 public class MainActivity extends BaseActivity {
+    //Installs a splash screen and must be called before super.onCreate()
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);

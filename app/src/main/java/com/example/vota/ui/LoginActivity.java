@@ -33,7 +33,8 @@ public class LoginActivity extends BaseActivity {
         findViewById(R.id.btnSignIn).setOnClickListener(v -> signIn());
         findViewById(R.id.btnRegister).setOnClickListener(v -> open(RegisterActivity.class));
     }
-
+//validates the email and password locally then calls the authapi.signin() and if its successful it saves
+    //the session token and fetches the users profile before continuing to home page
     private void signIn() {
         String e = email.getText().toString().trim();
         String p = password.getText().toString();
@@ -67,7 +68,8 @@ public class LoginActivity extends BaseActivity {
             }
         });
     }
-
+// Fetcges the signed in users profile row and caches it locally like the name,role and verification statuss and then
+    //goes to the Homeactivity
     private void loadProfileThenContinue(SessionManager session) {
         RestApi api = ApiClient.get(session).create(RestApi.class);
         api.myProfile("eq." + session.userId()).enqueue(new Callback<List<RestApi.Profile>>() {

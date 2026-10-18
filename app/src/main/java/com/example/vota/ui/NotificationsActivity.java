@@ -24,7 +24,7 @@ public class NotificationsActivity extends BaseActivity {
     private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 101;
     private static final String ELECTION_OPEN_MESSAGE =
             "The 2026 Tshwane Municipal Election is open. Review candidates before voting.";
-
+//fetches real rows from the notifications table
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,7 +77,7 @@ public class NotificationsActivity extends BaseActivity {
             NotificationHelper.showNotification(this, "Election Open!", ELECTION_OPEN_MESSAGE);
         }
     }
-
+//Receives the user's answer to the permission prompt
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);

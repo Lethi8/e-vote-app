@@ -17,6 +17,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LearnActivity extends BaseActivity {
+    //shows shimmering skeleton
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

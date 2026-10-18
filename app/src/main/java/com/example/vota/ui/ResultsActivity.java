@@ -15,6 +15,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ResultsActivity extends BaseActivity {
+    //loads all the results directly if it was opened in a specific election id, loads its results directly
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +48,7 @@ public class ResultsActivity extends BaseActivity {
             });
         }
     }
-
+//calls get_results() and sums total vote count
     private void loadResults(RestApi api, String electionId) {
         api.results(electionId).enqueue(new Callback<List<RestApi.ResultRow>>() {
             @Override

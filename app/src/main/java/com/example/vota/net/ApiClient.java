@@ -12,7 +12,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public final class ApiClient {
     private static Retrofit retrofit;
-
+// entire file is supposed to build a cache a shared retrofit instance for the app
     public static Retrofit get(SessionManager session) {
         if (retrofit == null) {
             Interceptor auth = chain -> {

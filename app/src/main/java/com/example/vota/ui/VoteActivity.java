@@ -32,7 +32,7 @@ public class VoteActivity extends BaseActivity {
     private RadioGroup group;
     private SessionManager session;
     private RestApi api;
-
+//Fetches the real parties for this election and builds one radiobutton per party dynamically
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,7 +78,7 @@ public class VoteActivity extends BaseActivity {
             }
         });
     }
-
+//Validates a selection was made and the confirmation checkbox is ticked
     private void review() {
         int id = group.getCheckedRadioButtonId();
         if (id == -1) {
@@ -99,7 +99,7 @@ public class VoteActivity extends BaseActivity {
                 .setPositiveButton("Cast ballot", (d, w) -> cast(p))
                 .show();
     }
-
+//calls the cast_ballot(). success=navigates to receipt screen
     private void cast(Party p) {
         Map<String, String> body = new HashMap<>();
         body.put("p_election_id", electionId);
@@ -130,7 +130,7 @@ public class VoteActivity extends BaseActivity {
             }
         });
     }
-
+//extracts a readable message from a failed responses JSON error
     private String errorMessage(Response<?> resp) {
         try {
             if (resp.errorBody() != null) {

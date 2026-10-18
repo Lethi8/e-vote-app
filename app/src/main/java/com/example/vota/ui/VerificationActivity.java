@@ -30,7 +30,8 @@ public class VerificationActivity extends BaseActivity {
         Button button = primary("Complete demo verification");
         button.setOnClickListener(v -> runVerification(button));
     }
-
+//Calls the verify_demo() and the stand-in via onClick and will show a thin shimmering progress bar under the button
+    //and disables it while the request is being sent
     private void runVerification(Button button) {
         button.setEnabled(false);
         button.setText("Verifying…");
@@ -66,7 +67,7 @@ public class VerificationActivity extends BaseActivity {
             }
         });
     }
-
+// re-enables the button and hides the in-flight shimmmer whether the verification succeeded succeeded or failed
     private void resetButton(Button button, FrameLayout skeletonFrame, ShimmerView shimmerOverlay) {
         button.setEnabled(true);
         button.setText("Complete demo verification");

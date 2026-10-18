@@ -27,6 +27,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ElectionsActivity extends BaseActivity {
+    //shows shimmering skeleton cards and fetches real list over the network then swaps the skeleton for a populated recycler view
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

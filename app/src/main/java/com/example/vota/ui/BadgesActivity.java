@@ -16,6 +16,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class BadgesActivity extends BaseActivity {
+    //shws shimmering skeleton and fetches the users real earned badges
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +46,7 @@ public class BadgesActivity extends BaseActivity {
             }
         });
     }
-
+// Renders all badges as card and marks each as a tick or circle based on the fetched set of codes
     private void render(Set<String> earned) {
         addSection(badge("registered", earned) + "Registered • 10 points", "Complete voter registration.");
         addSection(badge("verified_voter", earned) + "Verified Voter • 10 points", "Complete identity verification.");

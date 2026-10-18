@@ -35,7 +35,7 @@ public class ShimmerView extends View {
         gradientMatrix = new Matrix();
         setWillNotDraw(false);
     }
-
+//rebuilds the gradient whenever the view sie changes
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -51,7 +51,7 @@ public class ShimmerView extends View {
                 Shader.TileMode.CLAMP);
         paint.setShader(gradient);
     }
-
+//starts shimmer animation
     public void startShimmer() {
         stopShimmer();
         animator = ValueAnimator.ofFloat(-1f, 2f);
@@ -64,14 +64,14 @@ public class ShimmerView extends View {
         });
         animator.start();
     }
-
+// stops and discards animation if one is running
     public void stopShimmer() {
         if (animator != null) {
             animator.cancel();
             animator = null;
         }
     }
-
+//draws the gradient band at its current animation position
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);

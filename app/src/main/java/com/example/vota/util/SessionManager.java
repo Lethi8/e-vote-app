@@ -8,7 +8,7 @@ import androidx.security.crypto.MasterKey;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-
+// this file is used to store everything about the current loggin session in encrypted on device storage and will fall back to the sharedpreferances if the encryptedsharedpreferances setup fails
 public class SessionManager {
     private final SharedPreferences prefs;
 
@@ -26,7 +26,7 @@ public class SessionManager {
         }
         prefs = p;
     }
-
+// saves successful login
     public void saveSession(String userId, String accessToken, String refreshToken) {
         prefs.edit()
                 .putBoolean("logged_in", true)
@@ -35,7 +35,7 @@ public class SessionManager {
                 .putString("refresh_token", refreshToken)
                 .apply();
     }
-
+// caches the users name, role and verification status locally
     public void cacheProfile(String name, String role, boolean verified) {
         prefs.edit()
                 .putString("name", name)
@@ -43,16 +43,18 @@ public class SessionManager {
                 .putBoolean("verified", verified)
                 .apply();
     }
-
+// a full signout that clears every stored session value
     public void logout() { prefs.edit().clear().apply(); }
-
+// fede this becomes true of savesession has been called and the logout() did clear it
     public boolean isLoggedIn() { return prefs.getBoolean("logged_in", false); }
+    // users supabase auth.users that we can use to filter
     public String userId() { return prefs.getString("user_id", ""); }
     public String accessToken() { return prefs.getString("access_token", ""); }
     public String refreshToken() { return prefs.getString("refresh_token", ""); }
     public String name() { return prefs.getString("name", "Voter"); }
     public String role() { return prefs.getString("role", "voter"); }
     public boolean isVerified() { return prefs.getBoolean("verified", false); }
+    // caches the email used at the signing
     public void cacheEmail(String email) { prefs.edit().putString("email", email).apply(); }
     public String email() { return prefs.getString("email", ""); }
 }

@@ -14,7 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.vota.R;
 import com.example.vota.util.SkeletonUtil;
-
+//parent class that every screen in the app extends
 public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
@@ -27,18 +27,18 @@ public abstract class BaseActivity extends AppCompatActivity {
             return insets;
         });
     }
-
+//Starts another activity with no extras
     protected void open(Class<?> target) {
         startActivity(new Intent(this, target));
     }
-
+// Loads the activity_page.xml and then fills in its body and title etc.
     protected void page(String eyebrow, String title, String body) {
         setContentView(R.layout.activity_page);
         ((TextView) findViewById(R.id.txtEyebrow)).setText(eyebrow);
         ((TextView) findViewById(R.id.txtTitle)).setText(title);
         ((TextView) findViewById(R.id.txtBody)).setText(body);
     }
-
+//labels the page templates primary button, returning it so the caller can immediately attach a click listener
     protected Button primary(String text) {
         Button b = findViewById(R.id.btnPrimary);
         b.setText(text);
@@ -52,7 +52,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         b.setVisibility(View.VISIBLE);
         return b;
     }
-
+//Appends one read-only info card to the page template content
     protected void addSection(String title, String body) {
         LinearLayout container = findViewById(R.id.contentContainer);
         View v = getLayoutInflater().inflate(R.layout.item_card, container, false);
@@ -63,7 +63,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         v.setClickable(false);
         container.addView(v);
     }
-
+// shows count shimmering skeleton blocks in the layout skeletonFrame
     protected void showContentSkeleton(int count) {
         FrameLayout frame = findViewById(R.id.skeletonFrame);
         LinearLayout container = findViewById(R.id.skeletonContainer);
@@ -71,7 +71,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         if (frame == null || container == null || shimmer == null) return;
         SkeletonUtil.showSkeletonList(frame, container, shimmer, R.layout.item_skeleton_card, count);
     }
-
+//The reverse of the showcontentskeleton() and should stop the shimmer and hides the area
     protected void hideContentSkeleton() {
         FrameLayout frame = findViewById(R.id.skeletonFrame);
         LinearLayout container = findViewById(R.id.skeletonContainer);

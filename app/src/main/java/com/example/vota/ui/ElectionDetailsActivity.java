@@ -20,6 +20,7 @@ public class ElectionDetailsActivity extends BaseActivity {
     private SessionManager session;
     private RestApi api;
 
+    //fetches specific election by id before rendering anything
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +49,7 @@ public class ElectionDetailsActivity extends BaseActivity {
             }
         });
     }
-
+// builds the content page and shows the "Cast ballot" option only if the election is active
     private void render() {
         page(election.status, election.title, election.description);
         addSection("Election details",
@@ -72,7 +73,7 @@ public class ElectionDetailsActivity extends BaseActivity {
             });
         }
     }
-
+//Checks login and verification status then calls myReceipt() to see whether a vote already exists for this election
     private void vote() {
         if (!session.isLoggedIn()) { open(LoginActivity.class); return; }
         if (!session.isVerified()) { open(VerificationActivity.class); return; }

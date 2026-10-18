@@ -9,7 +9,7 @@ import com.example.vota.util.SessionManager;
 
 public class HomeActivity extends BaseActivity {
     private SessionManager session;
-
+// redirects to loginActivity immediately if theres no active session
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +37,7 @@ public class HomeActivity extends BaseActivity {
         findViewById(R.id.btnBadges).setOnClickListener(v -> open(BadgesActivity.class));
         findViewById(R.id.btnProfile).setOnClickListener(v -> open(ProfileActivity.class));
     }
-
+//Refreshes the readiness-checklist text every time this screen comes back into view
     @Override
     protected void onResume() {
         super.onResume();
