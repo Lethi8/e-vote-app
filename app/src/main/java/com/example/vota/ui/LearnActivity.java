@@ -23,15 +23,11 @@ public class LearnActivity extends BaseActivity {
         page("VOTER EDUCATION", "Know before you vote",
                 "Short, plain-language guides on voting in South Africa.");
 
-        showContentSkeleton(4);
-
         SessionManager session = new SessionManager(this);
         RestApi api = ApiClient.get(session).create(RestApi.class);
         api.educationResources().enqueue(new Callback<List<EducationResource>>() {
             @Override
             public void onResponse(Call<List<EducationResource>> call, Response<List<EducationResource>> resp) {
-                hideContentSkeleton();
-
                 if (!resp.isSuccessful() || resp.body() == null) {
                     Toast.makeText(LearnActivity.this, "Could not load resources.", Toast.LENGTH_LONG).show();
                     return;
@@ -51,8 +47,7 @@ public class LearnActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<List<EducationResource>> call, Throwable t) {
-                hideContentSkeleton();
-                Toast.makeText(LearnActivity.this, "Network error. Check your connection big boss", Toast.LENGTH_LONG).show();
+                Toast.makeText(LearnActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
             }
         });
     }

@@ -36,8 +36,14 @@ public interface RestApi {
     @POST("rest/v1/rpc/verify_demo")
     Call<Void> verifyDemo(@Body Map<String, String> emptyBody);
 
+    @POST("rest/v1/rpc/cast_ballot_vote")
+    Call<Void> castBallotVote(@Body Map<String, Object> body);
+
+    @GET("rest/v1/candidate_results?select=*")
+    Call<List<ResultRow>> results(@Query("election_id") String electionIdFilter);
+
     @GET("rest/v1/rpc/get_results")
-    Call<List<ResultRow>> results(@Query("p_election_id") String electionId);
+    Call<List<ResultRow>> getResultsRpc(@Query("p_election_id") String electionId);
 
     @GET("rest/v1/profiles?select=*")
     Call<List<Profile>> myProfile(@Query("id") String idFilter);
@@ -60,23 +66,17 @@ public interface RestApi {
     @GET("rest/v1/voter_participation?select=election_id,participated_at,receipt_hash,elections(title)&order=participated_at.desc")
     Call<List<ParticipationRow>> myParticipationHistory();
 
-    @GET("rest/v1/notifications?select=*&order=created_at.desc")
-    Call<List<NotificationRow>> myNotifications();
-
-    class NotificationRow {
-        public String title;
-        public String body;
-    }
-
     class BadgeRow {
         public String code;
         public String earned_at;
     }
 
     class ResultRow {
-        public String party_id;
+        public String id;
+        public String election_id;
         public String party_name;
         public long vote_count;
+        public String updated_at;
     }
 
     class Profile {
