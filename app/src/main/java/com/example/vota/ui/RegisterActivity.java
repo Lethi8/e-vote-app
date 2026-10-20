@@ -119,11 +119,9 @@ public class RegisterActivity extends BaseActivity {
         metadata.put("sa_id_number", idNumber);
         metadata.put("date_of_birth", dobText);
 
-        // set up the session manager and authentication service
         SessionManager session = new SessionManager(this);
         AuthApi api = ApiClient.get(session).create(AuthApi.class);
 
-        // prepare the details that Supabase needs to create the account
         AuthApi.SignUpRequest request =
                 new AuthApi.SignUpRequest(
                         emailAddress,
@@ -146,7 +144,7 @@ public class RegisterActivity extends BaseActivity {
                 if (!response.isSuccessful() || body == null) {
                     Toast.makeText(
                             RegisterActivity.this,
-                            "Registration failed. Please check your details and try again.",
+                            "This Account ",
                             Toast.LENGTH_LONG
                     ).show();
                     return;
