@@ -13,6 +13,26 @@
         <TextView style="@style/VotaEyebrow" android:text="ACCOUNT" />
         <TextView style="@style/VotaHero" android:layout_marginTop="8dp" android:text="Profile and security" />
 
+        <FrameLayout
+            android:id="@+id/skeletonFrame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:id="@+id/skeletonContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <com.example.vota.ui.ShimmerView
+                android:id="@+id/shimmerOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+
         <LinearLayout style="@style/VotaCard" android:layout_marginTop="18dp" android:orientation="vertical">
             <TextView style="@style/VotaTitle" android:text="Account" />
             <TextView android:id="@+id/txtName" style="@style/VotaBody" android:layout_marginTop="10dp" />
@@ -30,46 +50,10 @@
 
         <LinearLayout style="@style/VotaCard" android:layout_marginTop="16dp" android:orientation="vertical">
             <TextView style="@style/VotaTitle" android:text="Security" />
-            <Button
-                android:id="@+id/btnChangePassword" style="@style/VotaSecondaryButton"
-                android:text="Change password" />
-            <Button
-                android:id="@+id/btnSignOut" style="@style/VotaSecondaryButton"
-                android:text="Sign out" />
-            <Button
-                android:id="@+id/btnSignOutEverywhere" style="@style/VotaSecondaryButton"
-                android:text="Sign out of all devices" />
-            <Button
-                android:id="@+id/btnSecurityInfo" style="@style/VotaTextButton"
-                android:text="How Vota protects ballots" />
-        </LinearLayout>
-
-        <LinearLayout style="@style/VotaCard" android:layout_marginTop="16dp" android:orientation="vertical">
-            <TextView style="@style/VotaTitle" android:text="Appearance" />
-            <RadioGroup
-                android:id="@+id/radioTheme"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp">
-                <RadioButton
-                    android:id="@+id/radioThemeLight"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/vota_text"
-                    android:text="Light" />
-                <RadioButton
-                    android:id="@+id/radioThemeDark"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/vota_text"
-                    android:text="Dark" />
-                <RadioButton
-                    android:id="@+id/radioThemeSystem"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/vota_text"
-                    android:text="Match device setting" />
-            </RadioGroup>
+            <Button android:id="@+id/btnChangePassword" style="@style/VotaSecondaryButton" android:text="Change password" />
+            <Button android:id="@+id/btnSignOut" style="@style/VotaSecondaryButton" android:text="Sign out" />
+            <Button android:id="@+id/btnSignOutEverywhere" style="@style/VotaSecondaryButton" android:text="Sign out of all devices" />
+            <Button android:id="@+id/btnSecurityInfo" style="@style/VotaTextButton" android:text="How Vota protects ballots" />
         </LinearLayout>
 
         <LinearLayout style="@style/VotaCard" android:layout_marginTop="16dp" android:orientation="vertical">
@@ -87,6 +71,15 @@
                 android:text="Vota stores your name, contact details, ID number, verification status, and a record of which elections you've participated in. Your ballot choices are never linked to your identity." />
             <Button android:id="@+id/btnDeleteAccount" style="@style/VotaSecondaryButton"
                 android:textColor="@color/danger" android:text="Delete my account" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/VotaCard" android:layout_marginTop="16dp" android:orientation="vertical">
+            <TextView style="@style/VotaTitle" android:text="Appearance" />
+            <RadioGroup android:id="@+id/radioTheme" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp">
+                <RadioButton android:id="@+id/radioThemeLight" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="?attr/colorOnSurface" android:text="Light" />
+                <RadioButton android:id="@+id/radioThemeDark" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="?attr/colorOnSurface" android:text="Dark" />
+                <RadioButton android:id="@+id/radioThemeSystem" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="?attr/colorOnSurface" android:text="Match device setting" />
+            </RadioGroup>
         </LinearLayout>
 
         <Button android:id="@+id/btnAdmin" style="@style/VotaSecondaryButton" android:layout_marginTop="16dp" android:visibility="gone" android:text="Open admin dashboard" />
