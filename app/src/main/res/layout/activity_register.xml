@@ -25,6 +25,15 @@
             android:hint="Full name" />
 
         <EditText
+            android:id="@+id/edtDob"
+            style="@style/VotaInput"
+            android:hint="Date of birth"
+            android:inputType="none"
+            android:focusable="false"
+            android:clickable="true"
+            android:cursorVisible="false" />
+
+        <EditText
             android:id="@+id/edtEmail"
             style="@style/VotaInput"
             android:hint="Email address"

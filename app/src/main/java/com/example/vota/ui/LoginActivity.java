@@ -1,6 +1,7 @@
 package com.example.vota.ui;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.EditText;
@@ -19,44 +20,84 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LoginActivity extends BaseActivity {
+    private static final String TAG = "VOTA_LOGIN";
+
     private EditText email, password;
+    private View btnSignIn;
+    private boolean isSigningIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         email = findViewById(R.id.edtEmail);
         password = findViewById(R.id.edtPassword);
+        btnSignIn = findViewById(R.id.btnSignIn);
 
-        findViewById(R.id.btnDemoVoter).setVisibility(View.GONE); // real auth only
+        View demo = findViewById(R.id.btnDemoVoter);
+        if (demo != null) demo.setVisibility(View.GONE);
 
-        findViewById(R.id.btnSignIn).setOnClickListener(v -> signIn());
+        btnSignIn.setOnClickListener(v -> signIn());
         findViewById(R.id.btnRegister).setOnClickListener(v -> open(RegisterActivity.class));
     }
-//validates the email and password locally then calls the authapi.signin() and if its successful it saves
-    //the session token and fetches the users profile before continuing to home page
+
+    private void setBusy(boolean busy) {
+        isSigningIn = busy;
+        btnSignIn.setEnabled(!busy);
+    }
+
+    private void toast(String msg) {
+        if (!isFinishing() && !isDestroyed()) Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    }
+
+    // Validates locally, then calls AuthApi.signIn(). On success, saves the
+    // real session token and fetches the profile before continuing to Home.
     private void signIn() {
-        String e = email.getText().toString().trim();
-        String p = password.getText().toString();
+        if (isSigningIn) return;
+
+        final String e = email.getText().toString().trim();
+        final String p = password.getText().toString();
+
         if (!Patterns.EMAIL_ADDRESS.matcher(e).matches()) {
             email.setError("Enter a valid email address");
+            email.requestFocus();
             return;
         }
         if (p.length() < 8) {
             password.setError("Password must have at least 8 characters");
+            password.requestFocus();
             return;
         }
 
-        SessionManager session = new SessionManager(this);
-        AuthApi api = ApiClient.get(session).create(AuthApi.class);
+        setBusy(true);
+
+        final SessionManager session = new SessionManager(this);
+        final AuthApi api;
+        try {
+            api = ApiClient.get(session).create(AuthApi.class);
+        } catch (Exception ex) {
+            // Surfaces Retrofit setup problems (bad base URL, bad annotations)
+            // instead of crashing.
+            Log.e(TAG, "Could not create API client", ex);
+            setBusy(false);
+            toast("App configuration error. Check the Supabase URL and key.");
+            return;
+        }
+
         api.signIn("password", new AuthApi.SignInRequest(e, p)).enqueue(new Callback<AuthApi.AuthResponse>() {
             @Override
             public void onResponse(Call<AuthApi.AuthResponse> call, Response<AuthApi.AuthResponse> resp) {
+                setBusy(false);
                 AuthApi.AuthResponse body = resp.body();
-                if (!resp.isSuccessful() || body == null || body.accessToken == null) {
-                    Toast.makeText(LoginActivity.this, "Sign-in failed. Check your email and password.", Toast.LENGTH_LONG).show();
+
+                if (!resp.isSuccessful() || body == null || body.accessToken == null
+                        || body.user == null || body.user.id == null) {
+                    logErrorBody(resp);
+                    toast("Sign-in failed. Check your email, password, and email verification.");
                     return;
                 }
+
                 session.saveSession(body.user.id, body.accessToken, body.refreshToken);
                 session.cacheEmail(e);
                 loadProfileThenContinue(session);
@@ -64,30 +105,53 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<AuthApi.AuthResponse> call, Throwable t) {
-                Toast.makeText(LoginActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
+                setBusy(false);
+                Log.e(TAG, "Sign-in request failed", t);
+                toast("Network error. Check your connection and try again.");
             }
         });
     }
-// Fetcges the signed in users profile row and caches it locally like the name,role and verification statuss and then
-    //goes to the Homeactivity
-    private void loadProfileThenContinue(SessionManager session) {
+
+    // Fetches the signed-in user's profile row and caches it locally, then
+    // continues to Home either way — a failed fetch shouldn't block a valid session.
+    private void loadProfileThenContinue(final SessionManager session) {
         RestApi api = ApiClient.get(session).create(RestApi.class);
         api.myProfile("eq." + session.userId()).enqueue(new Callback<List<RestApi.Profile>>() {
             @Override
             public void onResponse(Call<List<RestApi.Profile>> call, Response<List<RestApi.Profile>> resp) {
-                if (resp.isSuccessful() && resp.body() != null && !resp.body().isEmpty()) {
-                    RestApi.Profile pr = resp.body().get(0);
-                    session.cacheProfile(pr.full_name, pr.role, pr.verified);
+                List<RestApi.Profile> list = resp.body();
+                if (resp.isSuccessful() && list != null && !list.isEmpty()) {
+                    RestApi.Profile profile = list.get(0);
+                    session.cacheProfile(profile.full_name, profile.role, profile.verified);
+                } else {
+                    logErrorBody(resp);
                 }
-                open(HomeActivity.class);
-                finish();
+                goHome();
             }
 
             @Override
             public void onFailure(Call<List<RestApi.Profile>> call, Throwable t) {
-                open(HomeActivity.class);
-                finish();
+                Log.e(TAG, "Failed to load user profile", t);
+                goHome();
             }
         });
+    }
+
+    private void goHome() {
+        if (isFinishing() || isDestroyed()) return;
+        open(HomeActivity.class);
+        finish();
+    }
+
+    private void logErrorBody(Response<?> resp) {
+        try {
+            if (resp.errorBody() != null) {
+                Log.e(TAG, "HTTP " + resp.code() + ": " + resp.errorBody().string());
+            } else {
+                Log.e(TAG, "HTTP " + resp.code() + " with empty or invalid body");
+            }
+        } catch (Exception ex) {
+            Log.e(TAG, "Could not read error body", ex);
+        }
     }
 }
