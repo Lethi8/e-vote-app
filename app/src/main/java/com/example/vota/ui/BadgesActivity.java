@@ -17,12 +17,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class BadgesActivity extends BaseActivity {
-    //shws shimmering skeleton and fetches the users real earned badges
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         page("ENGAGEMENT", "Your badges",
                 "Badges encourage learning and participation without rewarding a particular political choice.");
+        
 
         SessionManager session = new SessionManager(this);
         RestApi api = ApiClient.get(session).create(RestApi.class);
