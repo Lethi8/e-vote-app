@@ -1,4 +1,3 @@
-
 package com.example.vota.ui;
 
 import android.os.Bundle;
@@ -32,7 +31,6 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_login);
 
         email = findViewById(R.id.edtEmail);
@@ -62,7 +60,6 @@ public class LoginActivity extends BaseActivity {
         }
     }
 
-    // LOGIN WITH SUPABASE
     private void signIn() {
         if (isSigningIn) {
             return;
@@ -115,7 +112,7 @@ public class LoginActivity extends BaseActivity {
                         || body.user.id == null) {
 
                     logErrorBody(resp);
-                    toast("Sign-in failed. Check your email, password, and email verification.");
+                    toast("Username or Password incorrect.");
                     return;
                 }
 
