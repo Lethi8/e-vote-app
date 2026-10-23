@@ -11,7 +11,7 @@ import com.example.vota.util.SessionManager;
 public class HomeActivity extends BaseActivity {
 
     private SessionManager session;
-
+// redirects to loginActivity immediately if theres no active session
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +84,7 @@ public class HomeActivity extends BaseActivity {
             adminButton.setVisibility(View.GONE);
         }
     }
-
+//Refreshes the readiness-checklist text every time this screen comes back into view
     @Override
     protected void onResume() {
         super.onResume();

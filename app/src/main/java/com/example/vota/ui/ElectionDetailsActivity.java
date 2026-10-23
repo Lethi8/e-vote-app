@@ -22,6 +22,7 @@ public class ElectionDetailsActivity extends BaseActivity {
     private SessionManager session;
     private RestApi api;
 
+    //fetches specific election by id before rendering anything
     private boolean checkingVote = false;
 
     @Override
@@ -57,6 +58,7 @@ public class ElectionDetailsActivity extends BaseActivity {
 
         loadElection(electionId);
     }
+// builds the content page and shows the "Cast ballot" option only if the election is active
 
     // =========================================
     // LOAD SELECTED ELECTION
@@ -187,6 +189,33 @@ public class ElectionDetailsActivity extends BaseActivity {
                     });
         }
     }
+//Checks login and verification status then calls myReceipt() to see whether a vote already exists for this election
+    private void vote() {
+        if (!session.isLoggedIn()) { open(LoginActivity.class); return; }
+        if (!session.isVerified()) { open(VerificationActivity.class); return; }
+
+        api.myReceipt("eq." + election.id).enqueue(new Callback<List<RestApi.ReceiptRow>>() {
+            @Override
+            public void onResponse(Call<List<RestApi.ReceiptRow>> call, Response<List<RestApi.ReceiptRow>> resp) {
+                if (resp.isSuccessful() && resp.body() != null && !resp.body().isEmpty()) {
+                    Intent i = new Intent(ElectionDetailsActivity.this, ReceiptActivity.class);
+                    i.putExtra("election_id", election.id);
+                    i.putExtra("election_title", election.title);
+                    i.putExtra("receipt", resp.body().get(0).receipt_hash);
+                    startActivity(i);
+                } else {
+                    Intent i = new Intent(ElectionDetailsActivity.this, VoteActivity.class);
+                    i.putExtra("election_id", election.id);
+                    i.putExtra("election_title", election.title);
+                    startActivity(i);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<RestApi.ReceiptRow>> call, Throwable t) {
+                Toast.makeText(ElectionDetailsActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
+            }
+        });
 
     // =========================================
     // CHECK VOTER STATUS

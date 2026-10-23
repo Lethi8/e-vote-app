@@ -2,6 +2,7 @@ package com.example.vota.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.RadioButton;
@@ -28,11 +29,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class VoteActivity extends BaseActivity {
+    private static final String TAG = "VOTA_DEBUG";
     private String electionId, electionTitle;
     private RadioGroup group;
     private SessionManager session;
     private RestApi api;
-
+//Fetches the real parties for this election and builds one radiobutton per party dynamically
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,23 +54,39 @@ public class VoteActivity extends BaseActivity {
         group = findViewById(R.id.radioParties);
         findViewById(R.id.btnCast).setOnClickListener(v -> review());
 
-        api.partiesForElection("eq." + electionId).enqueue(new Callback<List<Party>>() {
+        loadPartiesForBallot();
+    }
+
+    private void loadPartiesForBallot() {
+        String filter = electionId != null ? (electionId.startsWith("eq.") ? electionId : "eq." + electionId) : null;
+
+        api.partiesForElection(filter).enqueue(new Callback<List<Party>>() {
             @Override
             public void onResponse(Call<List<Party>> call, Response<List<Party>> resp) {
-                if (!resp.isSuccessful() || resp.body() == null) {
-                    Toast.makeText(VoteActivity.this, "Could not load parties.", Toast.LENGTH_LONG).show();
-                    return;
+                if (resp.isSuccessful() && resp.body() != null && !resp.body().isEmpty()) {
+                    populatePartyOptions(resp.body());
+                } else {
+                    Log.w(TAG, "Filtered parties empty. Attempting partiesAll() fallback...");
+                    loadAllPartiesFallback();
                 }
-                for (Party p : resp.body()) {
-                    RadioButton rb = new RadioButton(VoteActivity.this);
-                    rb.setId(View.generateViewId());
-                    rb.setTag(p);
-                    rb.setText(p.name + " (" + p.abbreviation + ")");
-                    int pad = (int) (12 * getResources().getDisplayMetrics().density);
-                    rb.setPadding(pad, pad, pad, pad);
-                    rb.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));                    rb.setTextColor(androidx.core.content.ContextCompat.getColor(VoteActivity.this, R.color.vota_text));
-                    rb.setTextSize(16);
-                    group.addView(rb);
+            }
+
+            @Override
+            public void onFailure(Call<List<Party>> call, Throwable t) {
+                Log.e(TAG, "Failed filtered fetch. Attempting fallback: " + t.getMessage());
+                loadAllPartiesFallback();
+            }
+        });
+    }
+
+    private void loadAllPartiesFallback() {
+        api.partiesAll().enqueue(new Callback<List<Party>>() {
+            @Override
+            public void onResponse(Call<List<Party>> call, Response<List<Party>> resp) {
+                if (resp.isSuccessful() && resp.body() != null && !resp.body().isEmpty()) {
+                    populatePartyOptions(resp.body());
+                } else {
+                    Toast.makeText(VoteActivity.this, "Could not load parties.", Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -77,6 +95,33 @@ public class VoteActivity extends BaseActivity {
                 Toast.makeText(VoteActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void populatePartyOptions(List<Party> parties) {
+        group.removeAllViews();
+        int pad = (int) (12 * getResources().getDisplayMetrics().density);
+
+        for (Party p : parties) {
+            RadioButton rb = new RadioButton(VoteActivity.this);
+            rb.setId(View.generateViewId());
+            rb.setTag(p);
+
+            String displayText;
+            if (p.abbreviation != null && !p.abbreviation.isEmpty() && p.name != null && p.name.contains("(" + p.abbreviation + ")")) {
+                displayText = p.name;
+            } else if (p.abbreviation != null && !p.abbreviation.isEmpty()) {
+                displayText = p.name + " (" + p.abbreviation + ")";
+            } else {
+                displayText = p.name;
+            }
+
+            rb.setText(displayText);
+            rb.setPadding(pad, pad, pad, pad);
+            rb.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+            rb.setTextColor(androidx.core.content.ContextCompat.getColor(VoteActivity.this, R.color.vota_text));
+            rb.setTextSize(16);
+            group.addView(rb);
+        }
     }
 
     private void review() {
@@ -91,15 +136,25 @@ public class VoteActivity extends BaseActivity {
         }
 
         Party p = (Party) findViewById(id).getTag();
+
+        String dialogPartyText;
+        if (p.abbreviation != null && !p.abbreviation.isEmpty() && p.name != null && p.name.contains("(" + p.abbreviation + ")")) {
+            dialogPartyText = p.name;
+        } else if (p.abbreviation != null && !p.abbreviation.isEmpty()) {
+            dialogPartyText = p.name + " (" + p.abbreviation + ")";
+        } else {
+            dialogPartyText = p.name;
+        }
+
         new AlertDialog.Builder(this)
                 .setTitle("Review your selection")
-                .setMessage(p.name + " (" + p.abbreviation + ")\n\n"
+                .setMessage(dialogPartyText + "\n\n"
                         + "After casting, your selection cannot be changed. The receipt will not reveal this choice.")
                 .setNegativeButton("Go back", null)
                 .setPositiveButton("Cast ballot", (d, w) -> cast(p))
                 .show();
     }
-
+//calls the cast_ballot(). success=navigates to receipt screen
     private void cast(Party p) {
         Map<String, String> body = new HashMap<>();
         body.put("p_election_id", electionId);
@@ -115,13 +170,8 @@ public class VoteActivity extends BaseActivity {
                             .show();
                     return;
                 }
-                Intent i = new Intent(VoteActivity.this, ReceiptActivity.class);
-                i.putExtra("election_id", electionId);
-                i.putExtra("election_title", electionTitle);
-                i.putExtra("receipt", resp.body());
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(i);
-                finish();
+
+                navigateToReceipt(resp.body());
             }
 
             @Override
@@ -129,6 +179,16 @@ public class VoteActivity extends BaseActivity {
                 Toast.makeText(VoteActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void navigateToReceipt(String receiptData) {
+        Intent i = new Intent(VoteActivity.this, ReceiptActivity.class);
+        i.putExtra("election_id", electionId);
+        i.putExtra("election_title", electionTitle);
+        i.putExtra("receipt", receiptData);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(i);
+        finish();
     }
 
     private String errorMessage(Response<?> resp) {

@@ -2,9 +2,6 @@ package com.example.vota.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,7 +14,6 @@ import com.example.vota.model.Election;
 import com.example.vota.net.ApiClient;
 import com.example.vota.net.RestApi;
 import com.example.vota.util.SessionManager;
-import com.example.vota.util.SkeletonUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +23,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ElectionsActivity extends BaseActivity {
+    //shows shimmering skeleton cards and fetches real list over the network then swaps the skeleton for a populated recycler view
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,21 +35,11 @@ public class ElectionsActivity extends BaseActivity {
         RecyclerView recycler = findViewById(R.id.recycler);
         recycler.setLayoutManager(new LinearLayoutManager(this));
 
-        FrameLayout skeletonFrame = findViewById(R.id.skeletonFrame);
-        LinearLayout skeletonContainer = findViewById(R.id.skeletonContainer);
-        ShimmerView shimmerOverlay = findViewById(R.id.shimmerOverlay);
-
-        SkeletonUtil.showSkeletonList(skeletonFrame, skeletonContainer, shimmerOverlay, R.layout.item_skeleton_card, 3);
-        recycler.setVisibility(View.GONE);
-
         SessionManager session = new SessionManager(this);
         RestApi api = ApiClient.get(session).create(RestApi.class);
         api.elections().enqueue(new Callback<List<Election>>() {
             @Override
             public void onResponse(Call<List<Election>> call, Response<List<Election>> resp) {
-                SkeletonUtil.hideSkeletonList(skeletonFrame, skeletonContainer, shimmerOverlay);
-                recycler.setVisibility(View.VISIBLE);
-
                 if (!resp.isSuccessful() || resp.body() == null) {
                     Toast.makeText(ElectionsActivity.this, "Could not load elections.", Toast.LENGTH_LONG).show();
                     return;
@@ -73,8 +60,6 @@ public class ElectionsActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<List<Election>> call, Throwable t) {
-                SkeletonUtil.hideSkeletonList(skeletonFrame, skeletonContainer, shimmerOverlay);
-                recycler.setVisibility(View.VISIBLE);
                 Toast.makeText(ElectionsActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
             }
         });

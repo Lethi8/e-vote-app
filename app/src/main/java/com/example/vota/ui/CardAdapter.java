@@ -12,7 +12,7 @@ import com.example.vota.R;
 import com.example.vota.model.CardItem;
 
 import java.util.List;
-
+// renders a list of carditems thats used by elections and party explorer list
 public class CardAdapter extends RecyclerView.Adapter<CardAdapter.Holder> {
     private final List<CardItem> items;
 
@@ -25,7 +25,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.Holder> {
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_card, parent, false);
         return new Holder(v);
-    }
+    }// Binds one carditems badge, title, body or action into its row view
 
     @Override
     public void onBindViewHolder(@NonNull Holder h, int position) {

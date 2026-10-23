@@ -18,6 +18,10 @@ public final class ApiClient {
     public static synchronized Retrofit get(SessionManager session) {
         if (retrofit == null) {
             Interceptor auth = chain -> {
+                Request original = chain.request();
+                Request.Builder b = original.newBuilder()
+                        .header("apikey", BuildConfig.SUPABASE_ANON_KEY);
+
                 Request.Builder b = chain.request().newBuilder()
                         .header("apikey", BuildConfig.SUPABASE_ANON_KEY);
 

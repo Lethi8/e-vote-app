@@ -2,6 +2,7 @@ package com.example.vota.ui;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -23,7 +24,6 @@ import com.example.vota.model.Party;
 import com.example.vota.net.ApiClient;
 import com.example.vota.net.RestApi;
 import com.example.vota.util.SessionManager;
-import com.example.vota.util.SkeletonUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -37,6 +37,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class PartyExplorerActivity extends BaseActivity {
+    private static final String TAG = "VOTA_DEBUG";
+    private RecyclerView recycler;
+    private SessionManager session;
+    private RestApi api;
 
     private RecyclerView recycler;
     private EditText edtSearch;
@@ -54,6 +58,12 @@ public class PartyExplorerActivity extends BaseActivity {
 
         setContentView(R.layout.activity_list);
 
+        recycler = findViewById(R.id.recycler);
+        recycler.setLayoutManager(new LinearLayoutManager(this));
+
+        session = new SessionManager(this);
+        api = ApiClient.get(session).create(RestApi.class);
+        String electionId = getIntent().getStringExtra("election_id");
         TextView title = findViewById(R.id.txtTitle);
         TextView subtitle = findViewById(R.id.txtSubtitle);
 
@@ -74,15 +84,42 @@ public class PartyExplorerActivity extends BaseActivity {
 
         SessionManager session = new SessionManager(this);
 
-        Callback<List<Party>> callback = new Callback<List<Party>>() {
+        loadPartiesForExplorer(electionId);
+    }
+
+    private void loadPartiesForExplorer(String electionId) {
+        if (electionId != null && !electionId.isEmpty()) {
+            String filter = electionId.startsWith("eq.") ? electionId : "eq." + electionId;
+            api.partiesForElection(filter).enqueue(new Callback<List<Party>>() {
+                @Override
+                public void onResponse(Call<List<Party>> call, Response<List<Party>> resp) {
+                    if (resp.isSuccessful() && resp.body() != null && !resp.body().isEmpty()) {
+                        populateRecyclerView(resp.body());
+                    } else {
+                        Log.w(TAG, "Filtered party explorer results empty. Attempting partiesAll() fallback...");
+                        loadAllPartiesFallback();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<Party>> call, Throwable t) {
+                    Log.e(TAG, "Failed filtered party load: " + t.getMessage());
+                    loadAllPartiesFallback();
+                }
+            });
+        } else {
+            loadAllPartiesFallback();
+        }
+    }
+
+    private void loadAllPartiesFallback() {
+        api.partiesAll().enqueue(new Callback<List<Party>>() {
             @Override
             public void onResponse(Call<List<Party>> call, Response<List<Party>> resp) {
-                SkeletonUtil.hideSkeletonList(skeletonFrame, skeletonContainer, shimmerOverlay);
-                recycler.setVisibility(View.VISIBLE);
-
-                if (!resp.isSuccessful() || resp.body() == null) {
+                if (resp.isSuccessful() && resp.body() != null && !resp.body().isEmpty()) {
+                    populateRecyclerView(resp.body());
+                } else {
                     Toast.makeText(PartyExplorerActivity.this, "Could not load parties.", Toast.LENGTH_LONG).show();
-                    return;
                 }
         );
     }
@@ -348,10 +385,46 @@ public class PartyExplorerActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<List<Party>> call, Throwable t) {
-                SkeletonUtil.hideSkeletonList(skeletonFrame, skeletonContainer, shimmerOverlay);
-                recycler.setVisibility(View.VISIBLE);
                 Toast.makeText(PartyExplorerActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
             }
+        });
+    }
+
+    private void populateRecyclerView(List<Party> partyList) {
+        List<CardItem> cards = new ArrayList<>();
+        for (Party p : partyList) {
+            String partyDisplayName = p.name;
+            if (p.abbreviation != null && !p.abbreviation.isEmpty() && p.name != null && !p.name.contains("(" + p.abbreviation + ")")) {
+                partyDisplayName = p.name + " (" + p.abbreviation + ")";
+            }
+
+            String bodyText = (p.description != null ? p.description : "")
+                    + "\n\nPolicy: " + (p.policySummary != null ? p.policySummary : "N/A")
+                    + "\nKey positions: " + (p.keyPositions != null ? p.keyPositions : "N/A");
+
+            cards.add(new CardItem(
+                    p.abbreviation != null ? p.abbreviation : "PARTY",
+                    partyDisplayName,
+                    bodyText,
+                    "Information only",
+                    null
+            ));
+        }
+
+        recycler.setAdapter(new CardAdapter(cards));
+
+        awardExplorerBadge();
+    }
+
+    private void awardExplorerBadge() {
+        Map<String, String> badgeBody = new HashMap<>();
+        badgeBody.put("p_code", "party_explorer");
+        api.awardBadge(badgeBody).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> badgeCall, Response<Void> badgeResp) {}
+            @Override
+            public void onFailure(Call<Void> badgeCall, Throwable badgeT) {}
+        });
 
             @Override
             public void onFailure(

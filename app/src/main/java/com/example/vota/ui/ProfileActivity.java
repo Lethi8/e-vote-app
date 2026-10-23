@@ -6,7 +6,6 @@ import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -19,7 +18,6 @@ import com.example.vota.net.ApiClient;
 import com.example.vota.net.AuthApi;
 import com.example.vota.net.RestApi;
 import com.example.vota.util.SessionManager;
-import com.example.vota.util.SkeletonUtil;
 import com.example.vota.util.ThemeManager;
 
 import java.util.HashMap;
@@ -55,22 +53,13 @@ public class ProfileActivity extends BaseActivity {
 
         setUpThemeControls();
 
-        FrameLayout accountFrame = findViewById(R.id.accountSkeletonFrame);
-        LinearLayout accountSkeletonContainer = findViewById(R.id.accountSkeletonContainer);
-        ShimmerView accountShimmer = findViewById(R.id.accountShimmerOverlay);
-        SkeletonUtil.showSkeletonList(accountFrame, accountSkeletonContainer, accountShimmer, R.layout.item_skeleton_lines, 1);
-
-        FrameLayout participationFrame = findViewById(R.id.participationSkeletonFrame);
-        LinearLayout participationSkeletonContainer = findViewById(R.id.participationSkeletonContainer);
-        ShimmerView participationShimmer = findViewById(R.id.participationShimmerOverlay);
-        SkeletonUtil.showSkeletonList(participationFrame, participationSkeletonContainer, participationShimmer, R.layout.item_skeleton_lines, 1);
-
         loadProfile();
         loadParticipationHistory();
     }
-
+//Wires the theme radioGroup to themeManager
     private void setUpThemeControls() {
         RadioGroup radioTheme = findViewById(R.id.radioTheme);
+
         int currentMode = ThemeManager.getMode(this);
         if (currentMode == ThemeManager.MODE_LIGHT) radioTheme.check(R.id.radioThemeLight);
         else if (currentMode == ThemeManager.MODE_DARK) radioTheme.check(R.id.radioThemeDark);
@@ -81,22 +70,20 @@ public class ProfileActivity extends BaseActivity {
             if (checkedId == R.id.radioThemeLight) mode = ThemeManager.MODE_LIGHT;
             else if (checkedId == R.id.radioThemeDark) mode = ThemeManager.MODE_DARK;
             else mode = ThemeManager.MODE_SYSTEM;
+
             ThemeManager.setMode(this, mode);
             recreate();
+            // recreate() rebuilds this screen immediately under the new
+            // theme; AppCompat also auto-recreates other running
+            // activities, but calling it explicitly here guarantees this
+            // one updates right away regardless of AppCompat version
         });
     }
-
+//Fetches the signed-in users own profile row and renders it
     private void loadProfile() {
         api.myProfile("eq." + session.userId()).enqueue(new Callback<List<RestApi.Profile>>() {
             @Override
             public void onResponse(Call<List<RestApi.Profile>> call, Response<List<RestApi.Profile>> resp) {
-                FrameLayout accountFrame = findViewById(R.id.accountSkeletonFrame);
-                LinearLayout accountContent = findViewById(R.id.accountContent);
-                ShimmerView accountShimmer = findViewById(R.id.accountShimmerOverlay);
-                accountShimmer.stopShimmer();
-                accountFrame.setVisibility(View.GONE);
-                accountContent.setVisibility(View.VISIBLE);
-
                 if (!resp.isSuccessful() || resp.body() == null || resp.body().isEmpty()) {
                     Toast.makeText(ProfileActivity.this, "Could not load profile.", Toast.LENGTH_LONG).show();
                     return;
@@ -108,17 +95,11 @@ public class ProfileActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<List<RestApi.Profile>> call, Throwable t) {
-                FrameLayout accountFrame = findViewById(R.id.accountSkeletonFrame);
-                LinearLayout accountContent = findViewById(R.id.accountContent);
-                ShimmerView accountShimmer = findViewById(R.id.accountShimmerOverlay);
-                accountShimmer.stopShimmer();
-                accountFrame.setVisibility(View.GONE);
-                accountContent.setVisibility(View.VISIBLE);
                 Toast.makeText(ProfileActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
             }
         });
     }
-
+// Populates every text field on the account card from the fetched profile, hides all but the last 4 digits of the ID number
     private void render() {
         ((TextView) findViewById(R.id.txtName)).setText("Name: " + profile.full_name);
         ((TextView) findViewById(R.id.txtEmail)).setText("Email: " + session.email());
@@ -134,7 +115,8 @@ public class ProfileActivity extends BaseActivity {
 
         ((TextView) findViewById(R.id.txtVerified)).setText(profile.verified ? "Verification: Verified ✓" : "Verification: Pending");
         ((TextView) findViewById(R.id.txtRole)).setText("Role: " + profile.role);
-        ((TextView) findViewById(R.id.txtMemberSince)).setText("Member since: " + (profile.created_at != null && profile.created_at.length() >= 10 ? profile.created_at.substring(0, 10) : ""));
+        ((TextView) findViewById(R.id.txtMemberSince)).setText("Member since: "
+                + (profile.created_at != null && profile.created_at.length() >= 10 ? profile.created_at.substring(0, 10) : ""));
 
         Button admin = findViewById(R.id.btnAdmin);
         Button officer = findViewById(R.id.btnOfficer);
@@ -147,16 +129,11 @@ public class ProfileActivity extends BaseActivity {
             officer.setOnClickListener(v -> open(OfficerActivity.class));
         }
     }
-
+    //Fetches the users election participation history and renders it as a list
     private void loadParticipationHistory() {
         api.myParticipationHistory().enqueue(new Callback<List<RestApi.ParticipationRow>>() {
             @Override
             public void onResponse(Call<List<RestApi.ParticipationRow>> call, Response<List<RestApi.ParticipationRow>> resp) {
-                FrameLayout participationFrame = findViewById(R.id.participationSkeletonFrame);
-                ShimmerView participationShimmer = findViewById(R.id.participationShimmerOverlay);
-                participationShimmer.stopShimmer();
-                participationFrame.setVisibility(View.GONE);
-
                 LinearLayout container = findViewById(R.id.participationContainer);
                 if (!resp.isSuccessful() || resp.body() == null || resp.body().isEmpty()) {
                     TextView empty = new TextView(ProfileActivity.this);
@@ -175,14 +152,11 @@ public class ProfileActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<List<RestApi.ParticipationRow>> call, Throwable t) {
-                FrameLayout participationFrame = findViewById(R.id.participationSkeletonFrame);
-                ShimmerView participationShimmer = findViewById(R.id.participationShimmerOverlay);
-                participationShimmer.stopShimmer();
-                participationFrame.setVisibility(View.GONE);
+                // non-critical — the rest of the page still works without this
             }
         });
     }
-
+//shows a dialog to edit the phone number
     private void showEditPhoneDialog() {
         EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_PHONE);
@@ -206,7 +180,7 @@ public class ProfileActivity extends BaseActivity {
                 })
                 .show();
     }
-
+//shows the dialog for a new password
     private void showChangePasswordDialog() {
         EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -217,6 +191,7 @@ public class ProfileActivity extends BaseActivity {
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("Update", (d, w) -> {
                     String newPassword = input.getText().toString();
+                    //minimum of 8 characters
                     if (newPassword.length() < 8) {
                         Toast.makeText(this, "Use at least 8 characters.", Toast.LENGTH_SHORT).show();
                         return;
@@ -235,22 +210,24 @@ public class ProfileActivity extends BaseActivity {
                 })
                 .show();
     }
-
+// clears local session and goes back to MainActivity
     private void signOut() {
         session.logout();
         startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
         finish();
     }
-
+//Revokes every active session for the account
     private void signOutEverywhere() {
         authApi.logout("global").enqueue(new Callback<Void>() {
-            @Override public void onResponse(Call<Void> outCall, Response<Void> outResp) { signOut(); }
+            @Override public void onResponse(Call<Void> outCall, Response<Void> outResp) {
+                signOut();
+            }
             @Override public void onFailure(Call<Void> outCall, Throwable outT) {
                 Toast.makeText(ProfileActivity.this, "Network error. Check your connection.", Toast.LENGTH_LONG).show();
             }
         });
     }
-
+//requires the user to type "delete" exactly before proceeding
     private void showDeleteAccountDialog() {
         EditText input = new EditText(this);
         input.setHint("Type DELETE to confirm");

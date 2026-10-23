@@ -6,11 +6,11 @@ import android.content.Context;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import com.example.vota.R;
-
+// posts a system tray notification
 public class NotificationHelper {
 
     private static final String CHANNEL_ID = "voting_notifications";
-
+// makes a notification channel than posts a notification with the given message and is responsible for checking POST_NOTIFICATION permissions
     public static void showNotification(Context context, String title, String message) {
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 

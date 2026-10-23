@@ -15,7 +15,11 @@ import retrofit2.http.Header;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
+import retrofit2.http.DELETE;
+import retrofit2.http.Header;
+import retrofit2.http.PATCH;
 
+// This is all the database and RPC endpoint the app calls
 public interface RestApi {
 
 
@@ -24,8 +28,22 @@ public interface RestApi {
 
     @GET("rest/v1/elections?select=*&order=opens_at.desc")
     Call<List<Election>> elections();
-
+//specific election by id
     @GET("rest/v1/elections?select=*")
+    Call<List<Election>> electionById(@Query("id") String idFilter);
+//every party across the election
+    @GET("rest/v1/parties?select=*")
+    Call<List<Party>> partiesForElection(@Query("election_id") String electionIdFilter);
+//parties that belong to one election
+    @GET("rest/v1/parties?select=*")
+    Call<List<Party>> partiesAll();
+//education articles
+    @GET("rest/v1/education_resources?select=*&order=sort_order.asc")
+    Call<List<EducationResource>> educationResources();
+// casts a ballot by calling the cast_ballot() data function
+    @POST("rest/v1/rpc/cast_ballot")
+    Call<String> castBallot(@Body Map<String, String> body);
+//calls the verify_demo() function
     Call<List<Election>> electionById(
             @Query("id") String idFilter
     );
@@ -105,7 +123,21 @@ public interface RestApi {
 
     // RESULTS
 
+    @POST("rest/v1/rpc/cast_ballot_vote")
+    Call<Void> castBallotVote(@Body Map<String, Object> body);
+
+    @GET("rest/v1/candidate_results?select=*")
+    Call<List<ResultRow>> results(@Query("election_id") String electionIdFilter);
+
     @GET("rest/v1/rpc/get_results")
+    Call<List<ResultRow>> getResultsRpc(@Query("p_election_id") String electionId);
+
+    @GET("rest/v1/profiles?select=*")
+    Call<List<Profile>> myProfile(@Query("id") String idFilter);
+//If they voted on that specific election before then itll just show them a receipt hash and just reflects their receipt
+    @GET("rest/v1/voter_participation?select=receipt_hash")
+    Call<List<ReceiptRow>> myReceipt(@Query("election_id") String electionIdFilter);
+// Badges the person has earned
     Call<List<ResultRow>> results(
             @Query("p_election_id") String electionId
     );
@@ -134,6 +166,11 @@ public interface RestApi {
     Call<List<BadgeRow>> myBadges();
 
     @POST("rest/v1/rpc/award_badge")
+    Call<Void> awardBadge(@Body Map<String, String> body);
+// Updates the users own number should they want too
+    @POST("rest/v1/rpc/update_my_phone")
+    Call<Void> updateMyPhone(@Body Map<String, String> body);
+// They can delete their account from the database
     Call<Void> awardBadge(
             @Body Map<String, String> body
     );
@@ -159,23 +196,52 @@ public interface RestApi {
     )
     Call<List<ParticipationRow>> myParticipationHistory();
 
-    @GET("rest/v1/notifications?select=*&order=created_at.desc")
-    Call<List<NotificationRow>> myNotifications();
 
-    class NotificationRow {
-        public String title;
-        public String body;
-    }
+    @PATCH("rest/v1/elections")
+    Call<Void> updateElection(@Query("id") String idFilter, @Header("Prefer") String prefer, @Body Map<String, Object> election);
 
+    @DELETE("rest/v1/elections")
+    Call<Void> deleteElection(@Query("id") String idFilter);
+
+    @POST("rest/v1/parties")
+    Call<Void> createParty(@Header("Prefer") String prefer, @Body Party party);
+
+    @PATCH("rest/v1/parties")
+    Call<Void> updateParty(@Query("id") String idFilter, @Header("Prefer") String prefer, @Body Party party);
+
+    @DELETE("rest/v1/parties")
+    Call<Void> deleteParty(@Query("id") String idFilter);
+
+    @GET("rest/v1/audit_logs?select=*&order=created_at.desc")
+    Call<List<AuditLogRow>> auditLogs();
+
+    @POST("rest/v1/elections")
+    Call<Void> createElection(@Header("Prefer") String prefer, @Body Map<String, Object> election);
+
+    @PATCH("rest/v1/elections")
+    Call<Void> updateElection(@Header("Prefer") String prefer, @Body Map<String, Object> election);
+
+    @DELETE("rest/v1/elections")
+    Call<Void> deleteElection(@Header("Prefer") String prefer, @Body Map<String, Object> election);
     class BadgeRow {
         public String code;
         public String earned_at;
     }
 
     class ResultRow {
-        public String party_id;
+        public String id;
+        public String election_id;
         public String party_name;
         public long vote_count;
+        public String updated_at;
+    }
+
+    class AuditLogRow {
+        public String id;
+        public String user_id;
+        public String action;
+        public String description;
+        public String created_at;
     }
 
     class Profile {

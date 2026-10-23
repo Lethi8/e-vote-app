@@ -13,44 +13,39 @@
         <TextView style="@style/VotaEyebrow" android:text="ACCOUNT" />
         <TextView style="@style/VotaHero" android:layout_marginTop="8dp" android:text="Profile and security" />
 
-        <LinearLayout style="@style/VotaCard" android:layout_marginTop="18dp" android:orientation="vertical">
-            <TextView style="@style/VotaTitle" android:text="Account" />
-
-            <FrameLayout
-                android:id="@+id/accountSkeletonFrame"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:visibility="visible">
-                <LinearLayout
-                    android:id="@+id/accountSkeletonContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-                <com.example.vota.ui.ShimmerView
-                    android:id="@+id/accountShimmerOverlay"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </FrameLayout>
+        <FrameLayout
+            android:id="@+id/skeletonFrame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:visibility="gone">
 
             <LinearLayout
-                android:id="@+id/accountContent"
+                android:id="@+id/skeletonContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-                <TextView android:id="@+id/txtName" style="@style/VotaBody" android:layout_marginTop="10dp" />
-                <TextView android:id="@+id/txtEmail" style="@style/VotaBody" android:layout_marginTop="4dp" />
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:gravity="center_vertical" android:layout_marginTop="4dp">
-                    <TextView android:id="@+id/txtPhone" style="@style/VotaBody" android:layout_width="0dp" android:layout_weight="1" />
-                    <Button android:id="@+id/btnEditPhone" style="@style/VotaSmallButton" android:text="Edit" />
-                </LinearLayout>
-                <TextView android:id="@+id/txtIdMasked" style="@style/VotaBody" android:layout_marginTop="4dp" />
-                <TextView android:id="@+id/txtVerified" style="@style/VotaBody" android:layout_marginTop="4dp" />
-                <TextView android:id="@+id/txtRole" style="@style/VotaBody" android:layout_marginTop="4dp" />
-                <TextView android:id="@+id/txtMemberSince" style="@style/VotaCaption" android:layout_marginTop="8dp" />
+                android:orientation="vertical" />
+
+            <com.example.vota.ui.ShimmerView
+                android:id="@+id/shimmerOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+
+        <LinearLayout style="@style/VotaCard" android:layout_marginTop="18dp" android:orientation="vertical">
+            <TextView style="@style/VotaTitle" android:text="Account" />
+            <TextView android:id="@+id/txtName" style="@style/VotaBody" android:layout_marginTop="10dp" />
+            <TextView android:id="@+id/txtEmail" style="@style/VotaBody" android:layout_marginTop="4dp" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:gravity="center_vertical" android:layout_marginTop="4dp">
+                <TextView android:id="@+id/txtPhone" style="@style/VotaBody" android:layout_width="0dp" android:layout_weight="1" />
+                <Button android:id="@+id/btnEditPhone" style="@style/VotaSmallButton" android:text="Edit" />
             </LinearLayout>
+            <TextView android:id="@+id/txtIdMasked" style="@style/VotaBody" android:layout_marginTop="4dp" />
+            <TextView android:id="@+id/txtVerified" style="@style/VotaBody" android:layout_marginTop="4dp" />
+            <TextView android:id="@+id/txtRole" style="@style/VotaBody" android:layout_marginTop="4dp" />
+            <TextView android:id="@+id/txtMemberSince" style="@style/VotaCaption" android:layout_marginTop="8dp" />
         </LinearLayout>
 
         <LinearLayout style="@style/VotaCard" android:layout_marginTop="16dp" android:orientation="vertical">
@@ -65,24 +60,6 @@
             <TextView style="@style/VotaTitle" android:text="Your civic activity" />
             <Button android:id="@+id/btnBadges" style="@style/VotaSecondaryButton" android:text="View your badges" />
             <TextView style="@style/VotaCaption" android:layout_marginTop="10dp" android:text="Elections you've participated in:" />
-
-            <FrameLayout
-                android:id="@+id/participationSkeletonFrame"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:visibility="visible">
-                <LinearLayout
-                    android:id="@+id/participationSkeletonContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-                <com.example.vota.ui.ShimmerView
-                    android:id="@+id/participationShimmerOverlay"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </FrameLayout>
-
             <LinearLayout android:id="@+id/participationContainer"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:orientation="vertical" android:layout_marginTop="6dp" />
