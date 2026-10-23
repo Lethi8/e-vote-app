@@ -1,120 +1,430 @@
-package com.example.vota.ui;
+ package com.example.vota.ui;
 
-import android.content.Intent;
-import android.view.View;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+ import android.content.Intent;
+ import android.view.View;
+ import android.view.ViewGroup;
+ import android.widget.Button;
+ import android.widget.FrameLayout;
+ import android.widget.LinearLayout;
+ import android.widget.ProgressBar;
+ import android.widget.ScrollView;
+ import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+ import androidx.appcompat.app.AppCompatActivity;
+ import androidx.core.content.ContextCompat;
+ import androidx.core.graphics.Insets;
+ import androidx.core.view.ViewCompat;
+ import androidx.core.view.WindowInsetsCompat;
 
-import com.example.vota.R;
-import com.example.vota.util.SkeletonUtil;
-//parent class that every screen in the app extends
+ import com.example.vota.R;
+ import com.example.vota.util.SkeletonUtil;
+
+// Parent class that every screen in the app extends
 public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
+
         View content = findViewById(android.R.id.content);
-        ViewCompat.setOnApplyWindowInsetsListener(content, (v, insets) -> {
-            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
-            return insets;
-        });
+
+        if (content != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(content, (v, insets) -> {
+                Insets bars = insets.getInsets(
+                        WindowInsetsCompat.Type.systemBars()
+                );
+
+                v.setPadding(
+                        bars.left,
+                        bars.top,
+                        bars.right,
+                        bars.bottom
+                );
+
+                return insets;
+            });
+        }
     }
-//Starts another activity with no extras
+
+    // Starts another activity with no extras
     protected void open(Class<?> target) {
         startActivity(new Intent(this, target));
     }
-// Loads the activity_page.xml and then fills in its body and title etc.
+
+    // Loads activity_page.xml and then fills in its body and title
     protected void page(String eyebrow, String title, String body) {
         setContentView(R.layout.activity_page);
-        ((TextView) findViewById(R.id.txtEyebrow)).setText(eyebrow);
-        ((TextView) findViewById(R.id.txtTitle)).setText(title);
-        ((TextView) findViewById(R.id.txtBody)).setText(body);
+
+        TextView eyebrowText = findViewById(R.id.txtEyebrow);
+        TextView titleText = findViewById(R.id.txtTitle);
+        TextView bodyText = findViewById(R.id.txtBody);
+
+        if (eyebrowText != null) {
+            eyebrowText.setText(eyebrow);
+        }
+
+        if (titleText != null) {
+            titleText.setText(title);
+        }
+
+        if (bodyText != null) {
+            bodyText.setText(body);
+        }
     }
-//labels the page templates primary button, returning it so the caller can immediately attach a click listener
+
+    // Labels the page template's primary button,
+    // returning it so the caller can immediately attach a click listener
     protected Button primary(String text) {
         Button b = findViewById(R.id.btnPrimary);
-        b.setText(text);
-        b.setVisibility(View.VISIBLE);
+
+        if (b != null) {
+            b.setText(text);
+            b.setVisibility(View.VISIBLE);
+        }
+
         return b;
     }
 
+    // Labels the page template's secondary button
     protected Button secondary(String text) {
         Button b = findViewById(R.id.btnSecondary);
-        b.setText(text);
-        b.setVisibility(View.VISIBLE);
+
+        if (b != null) {
+            b.setText(text);
+            b.setVisibility(View.VISIBLE);
+        }
+
         return b;
     }
-//Appends one read-only info card to the page template content
+
+    // Appends one read-only information card to the page template content
     protected void addSection(String title, String body) {
         LinearLayout container = findViewById(R.id.contentContainer);
-        if (container == null) return;
-        View v = getLayoutInflater().inflate(R.layout.item_card, container, false);
-        ((TextView) v.findViewById(R.id.txtBadge)).setText("");
-        ((TextView) v.findViewById(R.id.txtTitle)).setText(title);
-        ((TextView) v.findViewById(R.id.txtBody)).setText(body);
-        v.findViewById(R.id.txtAction).setVisibility(View.GONE);
+
+        if (container == null) {
+            return;
+        }
+
+        View v = getLayoutInflater().inflate(
+                R.layout.item_card,
+                container,
+                false
+        );
+
+        TextView badge = v.findViewById(R.id.txtBadge);
+        TextView titleText = v.findViewById(R.id.txtTitle);
+        TextView bodyText = v.findViewById(R.id.txtBody);
+        TextView action = v.findViewById(R.id.txtAction);
+
+        if (badge != null) {
+            badge.setText("");
+        }
+
+        if (titleText != null) {
+            titleText.setText(title);
+        }
+
+        if (bodyText != null) {
+            bodyText.setText(body);
+        }
+
+        if (action != null) {
+            action.setVisibility(View.GONE);
+        }
+
         v.setClickable(false);
+
         container.addView(v);
     }
 
-    protected void addSection(String title, String body, int progressPercentage) {
+    // Adds an information card with a progress bar
+    protected void addSection(
+            String title,
+            String body,
+            int progressPercentage
+    ) {
         LinearLayout container = findViewById(R.id.contentContainer);
-        if (container == null) return;
 
-        View v = getLayoutInflater().inflate(R.layout.item_card, container, false);
-        ((TextView) v.findViewById(R.id.txtBadge)).setText("");
-        ((TextView) v.findViewById(R.id.txtTitle)).setText(title);
-        ((TextView) v.findViewById(R.id.txtBody)).setText(body);
-        v.findViewById(R.id.txtAction).setVisibility(View.GONE);
-        v.setClickable(false);
+        if (container == null) {
+            return;
+        }
 
-        ProgressBar progressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
-
-        int heightPx = (int) (16 * getResources().getDisplayMetrics().density);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                heightPx
+        View v = getLayoutInflater().inflate(
+                R.layout.item_card,
+                container,
+                false
         );
 
-        int marginPx = (int) (10 * getResources().getDisplayMetrics().density);
-        params.setMargins(0, marginPx, 0, marginPx);
+        TextView badge = v.findViewById(R.id.txtBadge);
+        TextView titleText = v.findViewById(R.id.txtTitle);
+        TextView bodyText = v.findViewById(R.id.txtBody);
+        TextView action = v.findViewById(R.id.txtAction);
+
+        if (badge != null) {
+            badge.setText("");
+        }
+
+        if (titleText != null) {
+            titleText.setText(title);
+        }
+
+        if (bodyText != null) {
+            bodyText.setText(body);
+        }
+
+        if (action != null) {
+            action.setVisibility(View.GONE);
+        }
+
+        v.setClickable(false);
+
+        ProgressBar progressBar = new ProgressBar(
+                this,
+                null,
+                android.R.attr.progressBarStyleHorizontal
+        );
+
+        int heightPx = (int) (
+                16 * getResources().getDisplayMetrics().density
+        );
+
+        LinearLayout.LayoutParams params =
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        heightPx
+                );
+
+        int marginPx = (int) (
+                10 * getResources().getDisplayMetrics().density
+        );
+
+        params.setMargins(
+                0,
+                marginPx,
+                0,
+                marginPx
+        );
+
         progressBar.setLayoutParams(params);
 
-        progressBar.setProgressDrawable(ContextCompat.getDrawable(this, R.drawable.custom_progress_bar));
+        progressBar.setProgressDrawable(
+                ContextCompat.getDrawable(
+                        this,
+                        R.drawable.custom_progress_bar
+                )
+        );
+
         progressBar.setMax(100);
+
+        // Keep progress between 0 and 100
+        if (progressPercentage < 0) {
+            progressPercentage = 0;
+        }
+
+        if (progressPercentage > 100) {
+            progressPercentage = 100;
+        }
+
         progressBar.setProgress(progressPercentage);
 
         if (v instanceof LinearLayout) {
             LinearLayout cardLayout = (LinearLayout) v;
-            cardLayout.addView(progressBar, 2);
+
+            cardLayout.addView(
+                    progressBar,
+                    2
+            );
         }
 
         container.addView(v);
     }
-// shows count shimmering skeleton blocks in the layout skeletonFrame
+
+    /*
+     * Adds an information card with an action button/link.
+     *
+     * This is used by:
+     * AdminElectionsActivity
+     * AdminPartiesActivity
+     */
+    protected void addActionSection(
+            String title,
+            String body,
+            String actionText,
+            View.OnClickListener listener
+    ) {
+        LinearLayout container = findViewById(R.id.contentContainer);
+
+        if (container == null) {
+            return;
+        }
+
+        View v = getLayoutInflater().inflate(
+                R.layout.item_card,
+                container,
+                false
+        );
+
+        TextView badge = v.findViewById(R.id.txtBadge);
+        TextView titleText = v.findViewById(R.id.txtTitle);
+        TextView bodyText = v.findViewById(R.id.txtBody);
+        TextView action = v.findViewById(R.id.txtAction);
+
+        if (badge != null) {
+            badge.setText("");
+        }
+
+        if (titleText != null) {
+            titleText.setText(title);
+        }
+
+        if (bodyText != null) {
+            bodyText.setText(body);
+        }
+
+        if (action != null) {
+            action.setText(actionText);
+            action.setVisibility(View.VISIBLE);
+
+            if (listener != null) {
+                action.setOnClickListener(listener);
+            }
+        }
+
+        v.setClickable(false);
+
+        container.addView(v);
+    }
+
+    /*
+     * Adds a Back action to the bottom of the page.
+     *
+     * Used by:
+     * AdminElectionsActivity
+     * AdminPartiesActivity
+     * AuditLogsActivity
+     *
+     * The Back action simply closes the current Activity
+     * and returns to the previous screen.
+     */
+    protected void addBackSection() {
+        LinearLayout container = findViewById(R.id.contentContainer);
+
+        if (container == null) {
+            return;
+        }
+
+        View v = getLayoutInflater().inflate(
+                R.layout.item_card,
+                container,
+                false
+        );
+
+        TextView badge = v.findViewById(R.id.txtBadge);
+        TextView titleText = v.findViewById(R.id.txtTitle);
+        TextView bodyText = v.findViewById(R.id.txtBody);
+        TextView action = v.findViewById(R.id.txtAction);
+
+        if (badge != null) {
+            badge.setText("");
+        }
+
+        if (titleText != null) {
+            titleText.setText("Navigation");
+        }
+
+        if (bodyText != null) {
+            bodyText.setText("Return to the previous page.");
+        }
+
+        if (action != null) {
+            action.setText("Back");
+            action.setVisibility(View.VISIBLE);
+
+            action.setOnClickListener(view -> finish());
+        }
+
+        v.setClickable(false);
+
+        container.addView(v);
+    }
+
+    /*
+     * Enables the vertical scrollbar on activity_page.xml.
+     *
+     * activity_page.xml currently uses a ScrollView without an ID,
+     * so we obtain the first child of android.R.id.content and
+     * check whether it is a ScrollView.
+     */
+    protected void enablePageScrollbar() {
+        View root = findViewById(android.R.id.content);
+
+        if (root == null) {
+            return;
+        }
+
+        if (root instanceof ScrollView) {
+            ScrollView scrollView = (ScrollView) root;
+
+            scrollView.setVerticalScrollBarEnabled(true);
+            scrollView.setScrollbarFadingEnabled(false);
+            scrollView.setFillViewport(true);
+
+            return;
+        }
+
+        if (root instanceof ViewGroup) {
+            ViewGroup contentGroup = (ViewGroup) root;
+
+            for (int i = 0; i < contentGroup.getChildCount(); i++) {
+                View child = contentGroup.getChildAt(i);
+
+                if (child instanceof ScrollView) {
+                    ScrollView scrollView = (ScrollView) child;
+
+                    scrollView.setVerticalScrollBarEnabled(true);
+                    scrollView.setScrollbarFadingEnabled(false);
+                    scrollView.setFillViewport(true);
+
+                    return;
+                }
+            }
+        }
+    }
+
+    // Shows count shimmering skeleton blocks in the layout skeletonFrame
     protected void showContentSkeleton(int count) {
         FrameLayout frame = findViewById(R.id.skeletonFrame);
         LinearLayout container = findViewById(R.id.skeletonContainer);
         ShimmerView shimmer = findViewById(R.id.shimmerOverlay);
-        if (frame == null || container == null || shimmer == null) return;
-        SkeletonUtil.showSkeletonList(frame, container, shimmer, R.layout.item_skeleton_card, count);
+
+        if (frame == null || container == null || shimmer == null) {
+            return;
+        }
+
+        SkeletonUtil.showSkeletonList(
+                frame,
+                container,
+                shimmer,
+                R.layout.item_skeleton_card,
+                count
+        );
     }
-//The reverse of the showcontentskeleton() and should stop the shimmer and hides the area
+
+    // The reverse of showContentSkeleton()
+    // Stops the shimmer and hides the skeleton area
     protected void hideContentSkeleton() {
         FrameLayout frame = findViewById(R.id.skeletonFrame);
         LinearLayout container = findViewById(R.id.skeletonContainer);
         ShimmerView shimmer = findViewById(R.id.shimmerOverlay);
-        if (frame == null || container == null || shimmer == null) return;
-        SkeletonUtil.hideSkeletonList(frame, container, shimmer);
+
+        if (frame == null || container == null || shimmer == null) {
+            return;
+        }
+
+        SkeletonUtil.hideSkeletonList(
+                frame,
+                container,
+                shimmer
+        );
     }
 }

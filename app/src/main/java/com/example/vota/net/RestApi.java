@@ -10,8 +10,12 @@ import java.util.Map;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
+import retrofit2.http.DELETE;
+import retrofit2.http.Header;
+import retrofit2.http.PATCH;
 
 // This is all the database and RPC endpoint the app calls
 public interface RestApi {
@@ -67,6 +71,33 @@ public interface RestApi {
     @GET("rest/v1/voter_participation?select=election_id,participated_at,receipt_hash,elections(title)&order=participated_at.desc")
     Call<List<ParticipationRow>> myParticipationHistory();
 
+
+    @PATCH("rest/v1/elections")
+    Call<Void> updateElection(@Query("id") String idFilter, @Header("Prefer") String prefer, @Body Map<String, Object> election);
+
+    @DELETE("rest/v1/elections")
+    Call<Void> deleteElection(@Query("id") String idFilter);
+
+    @POST("rest/v1/parties")
+    Call<Void> createParty(@Header("Prefer") String prefer, @Body Party party);
+
+    @PATCH("rest/v1/parties")
+    Call<Void> updateParty(@Query("id") String idFilter, @Header("Prefer") String prefer, @Body Party party);
+
+    @DELETE("rest/v1/parties")
+    Call<Void> deleteParty(@Query("id") String idFilter);
+
+    @GET("rest/v1/audit_logs?select=*&order=created_at.desc")
+    Call<List<AuditLogRow>> auditLogs();
+
+    @POST("rest/v1/elections")
+    Call<Void> createElection(@Header("Prefer") String prefer, @Body Map<String, Object> election);
+
+    @PATCH("rest/v1/elections")
+    Call<Void> updateElection(@Header("Prefer") String prefer, @Body Map<String, Object> election);
+
+    @DELETE("rest/v1/elections")
+    Call<Void> deleteElection(@Header("Prefer") String prefer, @Body Map<String, Object> election);
     class BadgeRow {
         public String code;
         public String earned_at;
@@ -78,6 +109,14 @@ public interface RestApi {
         public String party_name;
         public long vote_count;
         public String updated_at;
+    }
+
+    class AuditLogRow {
+        public String id;
+        public String user_id;
+        public String action;
+        public String description;
+        public String created_at;
     }
 
     class Profile {
