@@ -22,8 +22,15 @@ public final class ApiClient {
                 Request.Builder b = original.newBuilder()
                         .header("apikey", BuildConfig.SUPABASE_ANON_KEY);
 
+                Request.Builder b = chain.request().newBuilder()
+                        .header("apikey", BuildConfig.SUPABASE_ANON_KEY);
+
+                // Only send a user token once we actually have one.
+                // (Content-Type is set by Retrofit from the @Body, so we don't add it.)
                 String token = session.accessToken();
-                b.header("Authorization", "Bearer " + (token.isEmpty() ? BuildConfig.SUPABASE_ANON_KEY : token));
+                if (token != null && !token.isEmpty()) {
+                    b.header("Authorization", "Bearer " + token);
+                }
                 return chain.proceed(b.build());
             };
 

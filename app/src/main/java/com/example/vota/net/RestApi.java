@@ -9,8 +9,10 @@ import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 import retrofit2.http.DELETE;
@@ -19,7 +21,11 @@ import retrofit2.http.PATCH;
 
 // This is all the database and RPC endpoint the app calls
 public interface RestApi {
-//All of the elections with the newest opening first
+
+
+    // ELECTIONS
+
+
     @GET("rest/v1/elections?select=*&order=opens_at.desc")
     Call<List<Election>> elections();
 //specific election by id
@@ -38,8 +44,84 @@ public interface RestApi {
     @POST("rest/v1/rpc/cast_ballot")
     Call<String> castBallot(@Body Map<String, String> body);
 //calls the verify_demo() function
+    Call<List<Election>> electionById(
+            @Query("id") String idFilter
+    );
+
+
+    @POST("rest/v1/elections")
+    Call<Void> createElection(@Header("Prefer") String prefer, @Body Map<String, Object> election);
+
+    @PATCH("rest/v1/elections")
+    Call<Void> updateElection(@Query("id") String idFilter,
+                              @Header("Prefer") String prefer,
+                              @Body Map<String, Object> election);
+
+    @DELETE("rest/v1/elections")
+    Call<Void> deleteElection(@Query("id") String idFilter);
+
+
+    // PARTIES
+
+    @GET("rest/v1/parties?select=*")
+    Call<List<Party>> partiesForElection(
+            @Query("election_id") String electionIdFilter
+    );
+
+    @GET("rest/v1/parties?select=*")
+    Call<List<Party>> partiesAll();
+
+    @POST("rest/v1/parties")
+    Call<Void> createParty(
+            @Header("Prefer") String prefer,
+            @Body Party party
+    );
+
+    @PATCH("rest/v1/parties")
+    Call<Void> updateParty(
+            @Query("id") String idFilter,
+            @Header("Prefer") String prefer,
+            @Body Party party
+    );
+
+    @DELETE("rest/v1/parties")
+    Call<Void> deleteParty(
+            @Query("id") String idFilter
+    );
+
+
+ 
+    // AUDIT LOGS
+
+    @GET("rest/v1/audit_logs?select=*&order=created_at.desc")
+    Call<List<AuditLogRow>> auditLogs();
+
+
+
+    // EDUCATION RESOURCES
+
+    @GET("rest/v1/education_resources?select=*&order=sort_order.asc")
+    Call<List<EducationResource>> educationResources();
+
+
+    // VOTING
+
+    @POST("rest/v1/rpc/cast_ballot")
+    Call<String> castBallot(
+            @Body Map<String, String> body
+    );
+
+
+    // VERIFICATION
+
     @POST("rest/v1/rpc/verify_demo")
-    Call<Void> verifyDemo(@Body Map<String, String> emptyBody);
+    Call<Void> verifyDemo(
+            @Body Map<String, String> emptyBody
+    );
+
+
+
+    // RESULTS
 
     @POST("rest/v1/rpc/cast_ballot_vote")
     Call<Void> castBallotVote(@Body Map<String, Object> body);
@@ -56,6 +138,30 @@ public interface RestApi {
     @GET("rest/v1/voter_participation?select=receipt_hash")
     Call<List<ReceiptRow>> myReceipt(@Query("election_id") String electionIdFilter);
 // Badges the person has earned
+    Call<List<ResultRow>> results(
+            @Query("p_election_id") String electionId
+    );
+
+
+
+    // PROFILE
+
+    @GET("rest/v1/profiles?select=*")
+    Call<List<Profile>> myProfile(
+            @Query("id") String idFilter
+    );
+
+
+
+    // RECEIPTS
+    @GET("rest/v1/voter_participation?select=receipt_hash")
+    Call<List<ReceiptRow>> myReceipt(
+            @Query("election_id") String electionIdFilter
+    );
+
+
+  
+    // BADGES
     @GET("rest/v1/badges?select=code,earned_at")
     Call<List<BadgeRow>> myBadges();
 
@@ -65,10 +171,29 @@ public interface RestApi {
     @POST("rest/v1/rpc/update_my_phone")
     Call<Void> updateMyPhone(@Body Map<String, String> body);
 // They can delete their account from the database
-    @POST("rest/v1/rpc/delete_own_account")
-    Call<Void> deleteOwnAccount(@Body Map<String, String> emptyBody);
+    Call<Void> awardBadge(
+            @Body Map<String, String> body
+    );
 
-    @GET("rest/v1/voter_participation?select=election_id,participated_at,receipt_hash,elections(title)&order=participated_at.desc")
+
+    // ACCOUNT
+    @POST("rest/v1/rpc/update_my_phone")
+    Call<Void> updateMyPhone(
+            @Body Map<String, String> body
+    );
+
+    @POST("rest/v1/rpc/delete_own_account")
+    Call<Void> deleteOwnAccount(
+            @Body Map<String, String> emptyBody
+    );
+
+
+        // PARTICIPATION HISTORY
+    @GET(
+            "rest/v1/voter_participation" +
+                    "?select=election_id,participated_at,receipt_hash,elections(title)" +
+                    "&order=participated_at.desc"
+    )
     Call<List<ParticipationRow>> myParticipationHistory();
 
 
@@ -134,7 +259,10 @@ public interface RestApi {
         public String participated_at;
         public String receipt_hash;
         public ElectionRef elections;
-        public static class ElectionRef { public String title; }
+
+        public static class ElectionRef {
+            public String title;
+        }
     }
 
     class ReceiptRow {

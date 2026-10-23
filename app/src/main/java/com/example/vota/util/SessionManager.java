@@ -15,6 +15,7 @@ public class SessionManager {
 
     public SessionManager(Context context) {
         // Application context, so this never holds on to an Activity.
+        // Use the application context so we never hold on to an Activity.
         Context app = context.getApplicationContext();
         SharedPreferences p;
         try {
@@ -28,6 +29,14 @@ public class SessionManager {
             // Broad catch: Keystore can throw runtime exceptions beyond
             // GeneralSecurityException/IOException, and any of them should
             // fall back gracefully rather than crash the app.
+            p = EncryptedSharedPreferences.create(
+                    app,
+                    "vota_session_v2",
+                    key,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
+        } catch (Exception e) {
+            // Catches Keystore runtime errors too, not just GeneralSecurity/IO exceptions.
             Log.e(TAG, "Encrypted prefs failed, using fallback", e);
             p = app.getSharedPreferences("vota_session_fallback", Context.MODE_PRIVATE);
         }
@@ -59,6 +68,13 @@ public class SessionManager {
 
     // Full sign-out: clears every stored session value.
     public void logout() { prefs.edit().clear().apply(); }
+    public void cacheEmail(String email) {
+        prefs.edit().putString("email", email).apply();
+    }
+
+    public void logout() {
+        prefs.edit().clear().apply();
+    }
 
     public boolean isLoggedIn() { return prefs.getBoolean("logged_in", false); }
     public String userId()       { return prefs.getString("user_id", ""); }

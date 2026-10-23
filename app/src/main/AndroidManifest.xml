@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -33,7 +32,95 @@
         <activity android:name=".ui.AdminElectionsActivity" />
         <activity android:name=".ui.AdminPartiesActivity" />
         <activity android:name=".ui.AuditLogsActivity" />
+        <!-- NEW MAIN MENU -->
+        <activity
+            android:name=".ui.MenuActivity"
+            android:exported="false" />
 
+        <!-- ADMIN SCREENS -->
+        <activity
+            android:name=".ui.AdminElectionsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.AdminPartiesActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.AuditLogsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.AdminActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.OfficerActivity"
+            android:exported="false" />
+
+        <!-- VOTER SCREENS -->
+        <activity
+            android:name=".ui.ProfileActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.NotificationsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.BadgesActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.SecurityActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.LearnActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.ResultsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.ReceiptActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.VoteActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.PartyExplorerActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.ElectionDetailsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.ElectionsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.VerificationActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.HomeActivity"
+            android:exported="false" />
+
+        <!-- AUTHENTICATION -->
+        <activity
+            android:name=".ui.RegisterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.LoginActivity"
+            android:exported="false" />
+
+        <!-- APP LAUNCHER -->
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"
@@ -42,7 +129,9 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
 
     </application>
+
 </manifest>
