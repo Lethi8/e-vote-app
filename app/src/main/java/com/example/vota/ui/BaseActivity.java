@@ -297,14 +297,10 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     /*
      * Adds a Back action to the bottom of the page.
-     *
      * Used by:
      * AdminElectionsActivity
      * AdminPartiesActivity
      * AuditLogsActivity
-     *
-     * The Back action simply closes the current Activity
-     * and returns to the previous screen.
      */
     protected void addBackSection() {
         LinearLayout container = findViewById(R.id.contentContainer);
